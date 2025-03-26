@@ -2,7 +2,7 @@
 <ApplicationSettings>
     <URL>https://demowebshop.tricentis.com/login</URL>
     <APIURL/>
-    <BrowserType>Headless Chrome</BrowserType>
+    <BrowserType>Chrome</BrowserType>
     <EnableDebugLog>False</EnableDebugLog>
     <WebdriverPath>Na</WebdriverPath>
     <PrintTextInConsole>False</PrintTextInConsole>
