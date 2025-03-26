@@ -1,0 +1,62 @@
+[
+    {
+        "locator": "//input[@id='Email']",
+        "target": "<input autofocus='autofocus' class='email valid' id='Email' name='Email' type='text' value=''>"
+    },
+    {
+        "locator": "//input[@id='word']",
+        "target": "<input class='password valid'  name='Password' type='password'>"
+    },
+    {
+        "locator": "//input[@class='button-1 login-button']",
+        "target": "<input class='button-1 login-button' type='submit' value='Log in'>"
+    },
+    {
+        "locator": "(//a[contains(.,'Books')])[1]",
+        "target": "<a href='/books' class='hover'>Books</a>"
+    },
+    {
+        "locator": "(//a[contains(.,'Computers')])[1]",
+        "target": "<a href='/computers' class='hover'>Computers</a>"
+    },
+    {
+        "locator": "(//a[contains(.,'Electronics')])[1]",
+        "target": "<a href='/electronics' class='hover'>Electronics</a>"
+    },
+    {
+        "locator": "(//a[contains(.,'Apparel & Shoes')])[1]",
+        "target": "<a href='/apparel-shoes' class='hover'>Apparel &amp; Shoes</a>"
+    },
+    {
+        "locator": "(//a[contains(.,'Digital downloads')])[1]",
+        "target": "<a href='/digital-downloads' class='hover'>Digital downloads</a>"
+    },
+    {
+        "locator": "//select[@id='products-orderby']",
+        "target": "<select id='products-orderby' name='products-orderby' onchange='setLocation(this.value);'><option selected='selected' value='https://demowebshop.tricentis.com/books?orderby=0'>Position</option><option value='https://demowebshop.tricentis.com/books?orderby=5'>Name: A to Z</option><option value='https://demowebshop.tricentis.com/books?orderby=6'>Name: Z to A</option><option value='https://demowebshop.tricentis.com/books?orderby=10'>Price: Low to High</option><option value='https://demowebshop.tricentis.com/books?orderby=11'>Price: High to Low</option><option value='https://demowebshop.tricentis.com/books?orderby=15'>Created on</option></select>"
+    },
+    {
+        "locator": "(//a[contains(.,'Computing and Internet')])[1]",
+        "target": "<a href='/computing-and-internet'>Computing and Internet</a>"
+    },
+    {
+        "locator": "//input[@id='add-to-cart-button-13']",
+        "target": "<input type='button' id='add-to-cart-button-13' class='button-1 add-to-cart-button' value='Add to cart' data-productid='13' onclick='AjaxCart.addproducttocart_details('/addproducttocart/details/13/1', '#product-details-form');return false;'>"
+    },
+    {
+        "locator": "//span[contains(.,'Shopping cart')]",
+        "target": "<span class='cart-label'>Shopping cart</span>"
+    },
+    {
+        "locator": "//input[@name='removefromcart']",
+        "target": "<input type='checkbox' name='removefromcart' value='5183506'>"
+    },
+    {
+        "locator": "//input[@name='updatecart']",
+        "target": "<input type='submit' name='updatecart' value='Update shopping cart' class='button-2 update-cart-button'>"
+    },
+    {
+        "locator": "//input[@name='continueshopping']",
+        "target": "<input type='submit' name='continueshopping' value='Continue shopping' class='button-2 continue-shopping-button'>"
+    }
+]
