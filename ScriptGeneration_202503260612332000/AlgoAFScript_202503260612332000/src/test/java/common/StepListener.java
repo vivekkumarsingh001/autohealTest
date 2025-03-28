@@ -4,6 +4,7 @@ import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.event.EventHandler;
 import io.cucumber.plugin.event.EventPublisher;
 import io.cucumber.plugin.event.PickleStepTestStep;
+import io.cucumber.plugin.event.TestCaseStarted;
 import io.cucumber.plugin.event.TestStepStarted;
 
 public class StepListener implements ConcurrentEventListener {
@@ -26,6 +27,8 @@ public class StepListener implements ConcurrentEventListener {
 		if (event.getTestStep() instanceof PickleStepTestStep) {
 			PickleStepTestStep testStep = (PickleStepTestStep) event.getTestStep();
 			stepName = testStep.getStep().getText();
+
 		}
+
 	}
 }

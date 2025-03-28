@@ -9,12 +9,16 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.log4j.Logger;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.util.Arrays;
 import java.nio.charset.StandardCharsets;
 
 public class AutoHealUtil {
@@ -146,7 +150,7 @@ public class AutoHealUtil {
 
 	public static void saveConfigDeatils(String uidTag) {
 		try {
-			String autoHealingString = CommonUtil.getXMLData(Constants.APPLICATION_SETTING_PATH, "AutoHealing");
+			String autoHealingString = CommonUtil.GetXMLData(Constants.APPLICATION_SETTING_PATH, "AutoHealing");
 			boolean autoHealing = Boolean.parseBoolean(autoHealingString);
 			if (autoHealing) {
 				updtaeXML(uidTag);
@@ -165,16 +169,85 @@ public class AutoHealUtil {
 	}
 
 	public static void saveHtmlPageSource(String htmlFile) {
-	    try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8);
-	         BufferedWriter out = new BufferedWriter(writer)) {
+
+	    try {
 
 	        WebDriver driver = WebBrowser.getBrowser();
-	        out.write(driver.getPageSource());
-	        log.info("HTML data saved in UTF-8 format!");
 
-	    } catch (IOException e) {
-	        log.error("Error saving HTML file: " + e.getMessage());
+	        // 1. First verify driver has content
+
+	        String currentUrl = driver.getCurrentUrl();
+
+	        String pageTitle = driver.getTitle();
+
+	        log.info("Attempting to save HTML from URL: " + currentUrl);
+
+	        log.info("Page title: " + pageTitle);
+
+	        // 2. Wait for page to be properly loaded
+
+	        new WebDriverWait(driver, Duration.ofSeconds(15)).until(d -> {
+
+	            return ((JavascriptExecutor)d).executeScript("return document.readyState").equals("complete");
+
+	        });
+
+	        // 3. Get the page source with verification
+
+	        String pageSource = driver.getPageSource();
+
+
+	        log.info("Page source length: " + pageSource.length());
+
+	        // 4. Write with explicit flushing and verification
+
+	        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8);
+
+	             BufferedWriter out = new BufferedWriter(writer)) {
+
+	            out.write(pageSource);
+
+	            out.flush(); // Explicit flush
+
+	            // Verify file was written
+
+	            File outputFile = new File(htmlFile);
+
+	            if (outputFile.exists() && outputFile.length() > 0) {
+
+	                log.info("Successfully wrote HTML to: " + outputFile.getAbsolutePath());
+
+	            } else {
+
+	                log.error("File was created but is empty! Path: " + outputFile.getAbsolutePath());
+
+	                log.error("Filesystem free space: " + outputFile.getFreeSpace() + " bytes");
+
+	            }
+
+	        }
+
+	    } catch (Exception e) {
+
+	        log.error("Error saving HTML file: " + e.getMessage(), e);
+
+	        // Additional debugging for Jenkins
+
+	        try {
+
+	            log.error("Current working directory: " + System.getProperty("user.dir"));
+
+	            log.error("File system roots: " + Arrays.toString(File.listRoots()));
+
+	        } catch (Exception ex) {
+
+	            log.error("Couldn't get filesystem info", ex);
+
+	        }
+
 	    }
+
 	}
+
 
 }

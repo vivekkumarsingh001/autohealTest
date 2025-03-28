@@ -1,10 +1,15 @@
 package common;
 
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.bson.Document;
+
+
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
@@ -23,19 +28,20 @@ public class MongoDBUtil {
 	static String DBname = "***DB Name***";
 	private static String path = System.getProperty("user.dir");
 	static String query = null;
-	static final Logger log = Logger.getLogger(MongoDBUtil.class);
 
 	public static MongoDatabase createConnection() {
 		try {
-			dbURL = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-					"MongoDB_DbURL");
-			DBname = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-					"MongoDB_DbName");
+			dbURL = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), "MongoDB_DbURL");
+			DBname = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), "MongoDB_DbName");
 		} catch (Exception ex) {
 			throw new CustomException("DBSettings.xml file does not exist");
 		}
 
 		MongoClient client = new MongoClient(new MongoClientURI(dbURL));
+		/**** Get database ****/
+		// if database doesn't exists, MongoDB will create it for you
 		MongoDatabase mydatabase = client.getDatabase(DBname);
 		return mydatabase;
 	}
@@ -44,7 +50,9 @@ public class MongoDBUtil {
 		boolean isVerified = false;
 		query = queryParam;
 		/**** Get database ****/
+		// if database doesn't exists, MongoDB will create it for you
 		MongoDatabase mydatabase = createConnection();
+
 		/**** Get collection / table from DB ****/
 		// if collection doesn't exists, MongoDB will create it for you
 		FindIterable<Document> mydatabaserecords = mydatabase.getCollection(query).find();
@@ -68,15 +76,14 @@ public class MongoDBUtil {
 		Document document = mydatabase.getCollection(collectioName).find(dbObject).sort(Sorts.descending("timestamp"))
 				.first();
 
-		log.info("MongoDB collection: " + document.toString());
+		System.out.println("MongoDB collection: " + document.toString());
 		return document;
 	}
 
-	@SuppressWarnings("deprecation")
-	public static boolean CompareDbValues(String dbquery) {
+	public static boolean CompareDbValues(String DBquery) {
 
 		MongoDatabase mydatabase = createConnection();
-		String[] queryValue = dbquery.split("--");
+		String[] queryValue = DBquery.split("--");
 		String query = DbHelper.queryCopiedText(queryValue[0]);
 		String[] dbDeatails = query.split("@@");
 		boolean result = false;
@@ -148,8 +155,8 @@ public class MongoDBUtil {
 		MongoCursor<Document> iterator = mydatabaserecords.iterator();
 		while (iterator.hasNext()) {
 			Document doc = iterator.next();
-			log.info("MongoDB collection: " + doc.getString(field));
-			allData.add(doc.getString(field));
+			System.out.println("MongoDB collection: " + doc.getString(field));
+			allData.add(doc.getString(field).toString());
 		}
 		List<String> mainList = new ArrayList<>();
 		Set<String> uniqueData = new HashSet<String>(allData);
@@ -184,21 +191,22 @@ public class MongoDBUtil {
 	public static String getQuery(String queryParam) {
 
 		try {
-			query = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(), queryParam);
+			query = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), queryParam);
 			return query;
 		} catch (Exception ex) {
 			throw new CustomException("DBSettings.xml file does not exist");
 		}
 	}
 
-	@SuppressWarnings("deprecation")
-	public static boolean CompareDbValues1(String dbquery) {
+	public static boolean CompareDbValues1(String DBquery) {
 
+//		String collection = "user";
+//		String collectioName=collection;
 		try {
 			MongoDatabase mydb = createConnection();
 
-			String[] queryVal = dbquery.split("--");
+			String[] queryVal = DBquery.split("--");
 			String query = DbHelper.queryCopiedText(queryVal[0]);
 			String[] dbDetails = query.split("@@");
 			boolean result = false;
@@ -225,5 +233,7 @@ public class MongoDBUtil {
 			return false;
 		}
 		return false;
+
+//       System.out.println("MongoDB collection: " + document.toString());
 	}
 }

@@ -1,370 +1,506 @@
 package common;
 
-import java.io.*;
-import java.util.*;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.log4j.Logger;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.*;
-import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
-@SuppressWarnings("all")
-public class ExcelHandler {
 
-	private HSSFSheet sheet;
+public class ExcelHandler{
+
+	
+	public HSSFSheet sheet;
 	private String excelFileName;
 	private HSSFWorkbook wb;
 	private String sheetName;
-	private int rowno;
-	private int colno;
+	private int rowno,colno;
 	private HSSFRow row;
 	private HSSFCell cell;
-	private static final Logger log = Logger.getLogger(ExcelHandler.class);
-
-	public static File getTheNewestFile(String filePath, String ext) {
-		File dir = new File(filePath);
-		if (!dir.exists() || !dir.isDirectory()) {
-			log.error("Invalid directory: " + filePath);
-			return null;
-		}
-
-		FileFilter fileFilter = new WildcardFileFilter("*." + ext);
-		File[] files = dir.listFiles(fileFilter);
-
-		if (files == null || files.length == 0) {
-			log.error("No files found with extension: " + ext);
-			return null;
-		}
-
-		Arrays.sort(files, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
-		return files[0];
-	}
-
-	public static long getCSVRowsCount(String fileName) {
-		long rowCount = 0;
-		Path filePath = Paths.get(fileName);
-
-		if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
-			log.error("File does not exist or is not a regular file: " + fileName);
-			return 0;
-		}
-
-		try (BufferedReader reader = Files.newBufferedReader(filePath)) {
-			while (reader.readLine() != null) {
-				rowCount++;
-			}
-			log.info("Total rows: " + rowCount);
-		} catch (IOException e) {
-			log.error("Error reading file: " + fileName, e);
-		}
-
-		// Delete file using Files.delete() for better error messages
+	
+	//To get rows count
+	public long getCSVRowsCount(String fileName)
+	{
+		long number=0;
 		try {
-			Files.delete(filePath);
-			log.info("File deleted successfully: " + fileName);
-		} catch (IOException e) {
-			log.error("Failed to delete file: " + fileName, e);
+			Reader reader=new BufferedReader(new FileReader(new File(fileName)));
+			 long cells = 0;
+		        int lines = 0;
+		        int c;
+		        boolean qouted = false;
+		        while ((c = reader.read()) != -1) {
+		            if (c == '"') {
+		                 qouted = !qouted;
+		            }
+		            if (!qouted) {
+		                if (c == '\n') {
+		                    lines++;
+		                    cells++;
+		                }
+		                if (c == ',') {
+		                    cells++;
+		                }
+		            }
+		        }
+		        System.out.printf("lines : %d\n cells %d\n cols: %d\n", lines, cells, cells / lines);
+		        reader.close();
+		        number=lines;
+//			number= Files.readAllLines(Paths.get(fileName)).stream().map(line -> line.split(",")[0]).count();
+//			return number;
+		}catch(Exception e)
+		{
+			
 		}
-
-		return rowCount;
+		try
+	 	 {
+			//sleep required
+			Thread.sleep(500);
+	 	 	 File file = new File(fileName);
+	 	 	 if (file.exists())
+	 	 	 {
+	 	 		 //delete the file after verification
+	 	 	 	 file.delete();
+	 	 	 }
+	 	 	 else
+	 	 	 {
+	 	 	 	 System.out.println("Path is not present");
+	 	 	 }
+	 	 }
+	 	 catch (Exception e)
+	 	 {
+	 	 }
+		return number;
 	}
-
-	public static int getRecordsCount(String filename) {
-		File file = new File(filename);
-		if (!file.exists() || !file.isFile()) {
-			log.error("File does not exist or is not a valid file: " + filename);
-			return 0;
-		}
-
-		try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
-			byte[] buffer = new byte[1024];
-			int count = 0;
-			int readChars;
-			boolean hasContent = false;
-
-			while ((readChars = is.read(buffer)) != -1) {
-				hasContent = true;
-				for (int i = 0; i < readChars; i++) {
-					if (buffer[i] == '\n') {
-						count++;
-					}
-				}
-			}
-			// If there's content but no newline, count it as one record
-			return hasContent && count == 0 ? 1 : count;
-		} catch (IOException e) {
-			log.error("Error reading file: " + filename + " - " + e.getMessage());
-			return 0;
-		}
+	
+	//To get record count
+	public int getRecordsCount(String filename) throws IOException {
+	    InputStream is = new BufferedInputStream(new FileInputStream(filename));
+	    try {
+	    byte[] c = new byte[1024];
+	    int count = 0;
+	    int readChars = 0;
+	    boolean empty = true;
+	    while ((readChars = is.read(c)) != -1) {
+	        empty = false;
+	        for (int i = 0; i < readChars; ++i) {
+	            if (c[i] == '\n') {
+	                ++count;
+	            }
+	        }
+	    }
+	    return (count == 0 && !empty) ? 1 : count;
+	    } finally {
+	    is.close();
+	   }
 	}
-
-	public static String readData(String filename) {
-		List<String> data = new ArrayList<>();
-		Path filePath = Paths.get(filename);
-
-		if (!Files.exists(filePath) || !Files.isRegularFile(filePath)) {
-			log.error("File does not exist or is not a valid file: {}" + filename);
-			return "";
-		}
-
-		try (BufferedReader br = Files.newBufferedReader(filePath)) {
-			String line;
-			while ((line = br.readLine()) != null) {
-				String[] tokens = line.split(",");
-				for (String token : tokens) {
-					data.add(token.trim());
-				}
-			}
-		} catch (IOException e) {
-			log.error("Error reading file:" + filename + e);
-		}
-
-		// Delete file after reading (optional)
+	
+	/* Get the newest file for a specific extension */
+	public File getTheNewestFile(String filePath, String ext) {
 		try {
-			if (Files.deleteIfExists(filePath)) {
-				log.info("File deleted successfully: {}" + filename);
+			Thread.sleep(2000);
 			}
-		} catch (IOException e) {
-			log.error("Failed to delete file: {}" + filename + e);
-		}
+			catch (Exception e) {
+			}
+	    File theNewestFile = null;
+	    File dir = new File(filePath);
+	    FileFilter fileFilter = new WildcardFileFilter("*." + ext);
+	    File[] files = dir.listFiles(fileFilter);
 
-		return String.join("  ", data); // Maintain the original spacing format
+	    if (files.length > 0) {
+	        /** The newest file comes first **/
+	        Arrays.sort(files, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+	        theNewestFile = files[0];
+	    }
+
+	    return theNewestFile;
 	}
-
-	/**
-	 * Appends new elements in an existing sheet from the last row
-	 */
-	public void appendInSheet(String file, String sheetName, String[][] strings) {
-		String excelName = file + ".xls";
-
-		try (FileInputStream fis = new FileInputStream(excelName);
-				HSSFWorkbook lwb = new HSSFWorkbook(fis);
-				FileOutputStream fileOut = new FileOutputStream(excelName)) {
-
-			HSSFSheet lsheet = lwb.getSheet(sheetName);
-			if (sheet == null) {
-				throw new IllegalArgumentException("Sheet " + sheetName + " not found in the file.");
-			}
-
-			int rowNum = lsheet.getPhysicalNumberOfRows();
-
-			for (String[] rowData : strings) {
-				HSSFRow lrow = lsheet.createRow(rowNum++);
-				if (rowData != null) {
-					int colNum = 0;
-					for (String cellData : rowData) {
-						HSSFCell cell1 = lrow.createCell(colNum++);
-						cell1.setCellValue(cellData);
-					}
-				}
-			}
-
-			wb.write(fileOut);
-		} catch (IOException e) {
-			log.error("Error while appending data to sheet: " + e.getMessage());
-		}
-	}
-
+	
 	/**
 	 * used to read data from an excel sheet
+	 * @param filename 
+	 * @param sheetname 
+	 * @return a 2 dimensional string read from the excel sheet
+	 * @throws IOException
 	 */
 	public String[][] readArrXLSFile(String filename, String sheetname) throws IOException {
-		FileInputStream inputStream = new FileInputStream(filename);
-		HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
-		HSSFSheet lsheet = workbook.getSheet(sheetname);
+		HSSFRow row;
+		HSSFCell cell;
+		String[][] value = null;
+		@SuppressWarnings("unused")
+		double[][] nums = null;
 
-		int rows = lsheet.getPhysicalNumberOfRows();
-		String[][] value = new String[rows][];
+			FileInputStream inputStream = new FileInputStream(filename);
+			HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+			
+			HSSFSheet sheet = workbook.getSheet(sheetname);
+				int rows = sheet.getPhysicalNumberOfRows();
+				value = new String[rows][];
 
-		for (int r = 0; r < rows; r++) {
-			HSSFRow lrow = lsheet.getRow(r);
-			if (lrow != null) {
-				int cells = lrow.getPhysicalNumberOfCells();
-				value[r] = new String[cells];
+				for (int r = 0; r < rows; r++) {
+					row = sheet.getRow(r); // bring row
+					if (row != null) {
+						// get number of cell from row
+						int cells = sheet.getRow(r).getPhysicalNumberOfCells();
+//						LOGGER.info(cells);
+						value[r] = new String[cells];
+						for (int c = 0; c < cells; c++) {
+							cell = row.getCell(c);
+							nums = new double[rows][cells];
+//							System.out.print(r+" "+c+" ");
 
-				for (int c = 0; c < cells; c++) {
-					HSSFCell lcell = lrow.getCell(c, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK); // Avoid NPE
+							if (cell != null) {
 
-					switch (lcell.getCellTypeEnum()) {
-					case FORMULA:
-						value[r][c] = lcell.getCellFormula();
-						break;
-					case NUMERIC:
-						value[r][c] = String.valueOf(lcell.getNumericCellValue());
-						break;
-					case STRING:
-						value[r][c] = lcell.getStringCellValue();
-						break;
-					case BLANK:
-						value[r][c] = "";
-						break;
-					case ERROR:
-						value[r][c] = Byte.toString(lcell.getErrorCellValue());
-						break;
-					default:
-						value[r][c] = "";
+								switch (cell.getCellType()) {
+
+								case HSSFCell.CELL_TYPE_FORMULA:
+									value[r][c] = cell.getCellFormula();
+									break;
+
+								case HSSFCell.CELL_TYPE_NUMERIC:
+									value[r][c] = ""
+											+ cell.getNumericCellValue();
+									break;
+
+								case HSSFCell.CELL_TYPE_STRING:
+									value[r][c] = ""
+											+ cell.getStringCellValue();
+									break;
+
+								case HSSFCell.CELL_TYPE_BLANK:
+//									value[r][c] = "[BLANK]";
+									break;
+
+								case HSSFCell.CELL_TYPE_ERROR:
+									value[r][c] = ""+cell.getErrorCellValue();
+									break;
+								default:
+								}
+//								System.out.print(value[r][c]+"\t");
+
+							} else {
+//								System.out.print("[null]\t");
+							}
+						} // for(c)
+//						System.out.print("\n");
 					}
-				}
-			}
-		}
-
-		workbook.close();
-		inputStream.close();
-		return value;
+				} // for(r)
+//			}
+//			LOGGER.info(value.length);
+				workbook.close();
+				inputStream.close();
+			return value;
 	}
 
+	
 	public void writeXLSFile() throws IOException {
-
+		
 		writeXLSOpen();
 		writeXLSCFHeadings();
 		writeXLSClose();
+		
 	}
-
+	
 	/**
 	 * used to print the entire control mapping (as is)
+	 * @param file - name of the file to be created
+	 * @param data - data to be put into file
+	 * @throws IOException
 	 */
-	public void writeXLSFile(String file, String[][] data) throws IOException {
-
+	public void writeXLSFile(String file,String[][] data) throws IOException {
+		
 		writeXLSOpen(file);
 		writeXLSCFHeadings();
 		writeArr2XLS(data);
 		writeXLSClose();
+		
+	}
+	
+	/**
+	 * To make control mappings form json for profiler
+	 * @param file - Name of the file (Please provide with .xls extention)
+	 * @param sheetName - name of the sheet to be created and printed in
+	 * @param data - a 2D array to be printed to xlfile.
+	 * @throws IOException - While saving file data.
+	 */
+	public void writeXLSFile(String file,String sheetName,String[][] data) throws IOException {
+		
+		writeXLSOpen(file,sheetName);
+		writeArr2XLS(data);
+		writeXLSClose();
+		
 	}
 
 	/**
 	 * To make control mappings form json for profiler
+	 * @param file - Name of the file (Please provide with .xls extention)
+	 * @param sheetName - name of the sheet to be created and printed in
+	 * @param data - a 2D array to be printed to xlfile.
+	 * @throws IOException - While saving file data.
 	 */
-	public void writeXLSFile(String file, String sheetName, String[][] data) throws IOException {
-		writeXLSOpen(file, sheetName);
+	public void writeXLSFile(String file,String sheetName,ArrayList<String[]> data) throws IOException {
+		
+		writeXLSOpen(file,sheetName);
 		writeArr2XLS(data);
 		writeXLSClose();
+		
 	}
-
-	/**
-	 * To make control mappings form json for profiler
-	 */
-	public void writeXLSFile(String file, String sheetName, ArrayList<String[]> data) throws IOException {
-		writeXLSOpen(file, sheetName);
-		writeArr2XLS(data);
-		writeXLSClose();
-	}
-
+	
 	/**
 	 * used to initialize to print the control mapping
+	 * @param file - name of the file to be created
+	 * @param data - data to be put into file
+	 * @throws IOException
 	 */
-	public void writeCtrlMapXLSFileinit(String file, String[][] data) {
+	public void writeCtrlMapXLSFileinit(String file,String[][] data) throws IOException {
+		
 		writeXLSOpen(file);
 		writeXLSCFHeadings();
+		
 	}
+	
+	
+
+
 
 	/**
 	 * used to open or make an excel file for writing
 	 */
 	public void writeXLSOpen() {
-		excelFileName = "Data1.xls";
-		sheetName = "sheet1";
+		excelFileName = "Data1.xls";//name of excel file
+
+		sheetName = "sheet1";//name of sheet
+
 		wb = new HSSFWorkbook();
-		sheet = wb.createSheet(sheetName);
+		sheet = wb.createSheet(sheetName) ;		
 	}
 
 	/**
 	 * used to open or make an excel file for writing
+	 * @param file - takes the name of the file to be opend or created
 	 */
 	public void writeXLSOpen(String file) {
-		excelFileName = file + ".xls";
-		sheetName = "sheet1";
+		//LOGGER.info("[INFO]File name is "+file+".xls");
+		excelFileName = file+".xls";//name of excel file
+
+		sheetName = "sheet1";//name of sheet
+
 		wb = new HSSFWorkbook();
-		sheet = wb.createSheet(sheetName);
+		//LOGGER.info("[INFO]Sheet Name is "+sheetName);
+		sheet = wb.createSheet(sheetName) ;		
 	}
 
 	/**
 	 * used to open or make an excel file for writing
+	 * @param file - takes the name of the file to be opend or created
+	 * @param sheetname 
 	 */
 	public void writeXLSOpen(String file, String sheetname) {
-		excelFileName = file;
-		sheetName = sheetname;
+		//LOGGER.info("[INFO]File name is "+file+".xls");
+		excelFileName = file;//name of excel file
+
+		sheetName = sheetname;//name of sheet
+
 		wb = new HSSFWorkbook();
-		sheet = wb.createSheet(sheetName);
+		//LOGGER.info("[INFO]Sheet Name is "+sheetName);
+		sheet = wb.createSheet(sheetName) ;		
 	}
 
 	/**
 	 * used to make heading row of controls mapping file
 	 */
 	public void writeXLSCFHeadings() {
+//		int r = 0;
 		row = sheet.createRow(rowno++);
-		row.createCell(0).setCellValue("GWT");
-		row.createCell(1).setCellValue("Control Name");
-		row.createCell(2).setCellValue("Control Type");
-		row.createCell(3).setCellValue("Control Identification Type");
-		row.createCell(4).setCellValue("Control Id");
-		row.createCell(5).setCellValue("Parent Control");
-		row.createCell(6).setCellValue("PageName");
-		row.createCell(7).setCellValue("Action");
-		row.createCell(8).setCellValue("ActionMethods");
-
+		row.createCell(0).setCellValue("GWT");		
+		row.createCell(1).setCellValue("Control Name");		
+		row.createCell(2).setCellValue("Control Type");		
+		row.createCell(3).setCellValue("Control Identification Type");		
+		row.createCell(4).setCellValue("Control Id");		
+		row.createCell(5).setCellValue("Parent Control");		
+		row.createCell(6).setCellValue("PageName");		
+		row.createCell(7).setCellValue("Action");		
+		row.createCell(8).setCellValue("ActionMethods");		
+		
 	}
+	
+	/**
+	 * used to print the contents into an controls mapping file
+	 */
+/*	public static void writeXLSCFContents() {
+		String[] gwt = {"Given i entered Username as \'<UserName>\'","And i entered Password as \'<Password>\'","When i select Login","Then Home page shall be \'<displayed>\'"},
+		controlname = {"User Name","Password","Login","Home"},
+		controltype = {"TextBox","TextBox","Button","Page"},
+		controlidentificationtype = {"ID","ID","Text","Title"},
+		controlid = {"txtUserName","txtPassword","Login","Home"},
+		parrentcontrol={};
+		
+		String[][] data = {{"Given i entered Username as \'<UserName>\'","And i entered Password as \'<Password>\'","When i select Login","Then Home page shall be \'<displayed>\'"},
+		{"User Name","Password","Login","Home"},
+		{"TextBox","TextBox","Button","Page"},
+		{"ID","ID","Text","Title"},
+		{"txtUserName","txtPassword","Login","Home"},
+		{"","","",""}};
 
+		//iterating r number of rows
+		for (int r=1;r <data[0].length+1 ; r++ )
+		{
+			HSSFRow row = sheet.createRow(r);
+	
+			//iterating c number of columns
+			for (int c=0;c < data.length; c++ )
+			{
+				HSSFCell cell = row.createCell(c);
+				cell.setCellValue(data[c][r-1]);
+			}
+		}
+
+	}*/
+	
 	/**
 	 * used to print a 2d array into an excel sheet
+	 * @param data - a 2d string array
 	 */
 	public void writeArr2XLS(String[][] data) {
-		for (int r = 0; r < data.length; r++) {
-			HSSFRow lrow = sheet.createRow(r);
-			if (data[r] != null) {
-				for (int c = 0; c < data[r].length; c++) {
-					HSSFCell lcell = lrow.createCell(c);
-					lcell.setCellValue(data[r][c]);
-				}
+
+		//iterating r number of rows
+		for (int r=0;r <data.length ; r++ )
+		{
+//			LOGGER.info("row = "+r);
+			HSSFRow row = sheet.createRow(r);
+//			LOGGER.info(data[r]);
+	
+			if(data[r]!= null){
+			//iterating c number of columns
+			for (int c=0;c < data[r].length; c++ )
+			{
+//				LOGGER.info("col = "+c);
+				HSSFCell cell = row.createCell(c);
+				cell.setCellValue(data[r][c]);
+			}
+//			LOGGER.info("row added");
 			}
 		}
 	}
+	
 
 	/**
 	 * used to print a 2d array into an excel sheet
+	 * @param data - a 2d string array
 	 */
 	public void writeArr2XLS(ArrayList<String[]> data) {
 
-		for (int r = 0; r < data.size(); r++) {
-			HSSFRow lrow = sheet.createRow(r);
-			if (data.get(r) != null) {
-				for (int c = 0; c < data.get(r).length; c++) {
-					HSSFCell lcell = lrow.createCell(c);
-					lcell.setCellValue(data.get(r)[c]);
+		//iterating r number of rows
+		for (int r=0;r <data.size() ; r++ )
+		{
+			//			LOGGER.info("row = "+r);
+			HSSFRow row = sheet.createRow(r);
+			//			LOGGER.info(data[r]);
+
+			if(data.get(r)!= null){
+				//iterating c number of columns
+				for (int c=0;c < data.get(r).length; c++ )
+				{
+					//				LOGGER.info("col = "+c);
+					HSSFCell cell = row.createCell(c);
+					cell.setCellValue(data.get(r)[c]);
 				}
+				//			LOGGER.info("row added");
 			}
 		}
 	}
 
 	/**
+	 * used to print a 1d array into an excel sheet
+	 * @param data - a 1d string array
+	 */
+/*	public static void writeArr2XLS(String[][] data) {
+
+		//iterating r number of rows
+		for (int r=0;r <data.length ; r++ )
+		{
+			LOGGER.info("row = "+r);
+			HSSFRow row = sheet.createRow(r);
+			LOGGER.info(data[r]);
+	
+			if(data[r]!= null){
+			//iterating c number of columns
+			for (int c=0;c < data[r].length; c++ )
+			{
+				LOGGER.info("col = "+c);
+				HSSFCell cell = row.createCell(c);
+				cell.setCellValue(data[r][c]);
+			}
+			LOGGER.info("row added");
+			}
+		}
+	}*/
+
+	/**
 	 * used to closed the excel file
+	 * @throws IOException
 	 */
 	public void writeXLSClose() throws IOException {
-	    if (excelFileName != null && wb != null) {
-	        try (FileOutputStream fileOut = new FileOutputStream(excelFileName)) {
-	            wb.write(fileOut);
-	            fileOut.flush(); 
-	        }
-	        wb.close();
-	    }
+		if(excelFileName!=null) {
+		FileOutputStream fileOut = new FileOutputStream(excelFileName);
+		
+		//write this workbook to an Outputstream.
+		if(wb!=null)
+			wb.write(fileOut);
+		fileOut.flush();
+		fileOut.close();
+		}
+		if(wb!=null)
+			wb.close();
+		//LOGGER.info("Excel File Created "+excelFileName);
+
 	}
 
 	public void nextRow(String[] strings) {
-		HSSFRow lrow = sheet.createRow(rowno++);
+		// TODO Auto-generated method stub
+		HSSFRow row = sheet.createRow(rowno++);
 		int col = 0;
 		for (String string : strings) {
-			lrow.createCell(col++).setCellValue(string);
+			row.createCell(col++).setCellValue(string);
 		}
 	}
 
+
 	public void emptyRow() {
+		// TODO Auto-generated method stub
+//		HSSFRow row = sheet.createRow(rowno++);
 		rowno++;
+
 	}
 
+	/**
+	 * Makes a new row and inserts states name in the 1'st column of the data
+	 * excel sheet
+	 * 
+	 * @param name
+	 *            - name of the state to be inserted in the 1'st column of the
+	 *            excel sheet
+	 */
 	public void newRow(String name) {
+		// TODO Auto-generated method stub
 		row = sheet.createRow(rowno++);
 		colno = 0;
 		cell = row.createCell(colno);
@@ -372,26 +508,134 @@ public class ExcelHandler {
 
 	}
 
+	public String readdata(String filename)
+	{
+		ArrayList<String> ar = new ArrayList<String>();  
+		String value=null;
+		try {   
+		 File csvFile = new File(filename);  
+		         BufferedReader br = new BufferedReader(new FileReader(csvFile));  
+		         String line = "";  
+		         StringTokenizer st = null;  
+		         int lineNumber = 0;   
+		         int tokenNumber = 0;  
+		         while ((line = br.readLine()) != null) {  
+		           lineNumber++;  
+		           //use comma as token separator  
+		           st = new StringTokenizer(line, ",");  
+		           while (st.hasMoreTokens()) {  
+		             tokenNumber++;  
+		              String sd=st.nextToken() + "  ";  
+		                
+		             if(sd!=null){  
+		             ar.add(sd);  
+		                 System.err.println(sd);  
+		             }  
+		               
+		           }  
+		           tokenNumber = 0;  
+		         } 
+		         br.close();
+		        
+		         value=ar.toString();
+		}catch(Exception e)
+		{
+			value=ar.toString();
+		}
+		try
+	 	 {
+			Thread.sleep(500);
+	 	 	 File file = new File(filename);
+	 	 	 if (file.exists())
+	 	 	 {
+	 	 	 	 file.delete();
+	 	 	 }
+	 	 	 else
+	 	 	 {
+	 	 	 	 System.out.println("Path is not existing");
+	 	 	 }
+	 	 }
+	 	 catch (Exception e)
+	 	 {
+	 	 }
+		return value;
+	}
+
 	public void newCell(String value) {
+		// TODO Auto-generated method stub
 		cell = row.createCell(++colno);
 		cell.setCellValue(value);
 
 	}
 
+
 	public void inNewSheet(String sheetName, String[][] strings) {
-		HSSFSheet lsheet = wb.createSheet(sheetName);
-		int r = 0;
-		int c = 0;
+		// TODO Auto-generated method stub
+		HSSFSheet sheet = wb.createSheet(sheetName) ;
+
+		int r=0,c=0;
 		for (String[] strings2 : strings) {
-			HSSFRow lrow = lsheet.createRow(r++);
+//			LOGGER.info("row = "+r);
+			HSSFRow row = sheet.createRow(r++);
+//			LOGGER.info(strings2);
+
 			c = 0;
-			if (strings2 != null) {
+			if(strings2 != null){
 				for (String string : strings2) {
-					HSSFCell lcell = lrow.createCell(c++);
-					lcell.setCellValue(string);
+//					LOGGER.info("col = "+c);
+					HSSFCell cell = row.createCell(c++);
+					cell.setCellValue(string);
 				}
+//			LOGGER.info("row added");
 			}
 		}
+	}
+	
+	/**
+	 * Appends new elements in an existing sheet from the last row
+	 * @param file - existing fine name without .xls extention
+	 * @param sheetName - sheet name to which the new data should be appended from the last row
+	 * @param strings - a 2 d array of the data to be appended to the file
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void appendInSheet(String file, String sheetName, String[][] strings) throws FileNotFoundException, IOException {
+		// TODO Auto-generated method stub
+//		wb.setActiveSheet(0);
+//		wb.setActiveSheet(wb.getSheetIndex(sheetName));
+		HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(file+".xls"));
+		HSSFSheet sheet = wb.getSheet(sheetName);
+		//LOGGER.info("[INFO]Appending on Sheet "+sheet.getSheetName());
+		
+		int r=sheet.getPhysicalNumberOfRows(),c=0;
+		for (String[] strings2 : strings) {
+//			LOGGER.info("row = "+r);
+			HSSFRow row = sheet.createRow(r++);
+//			LOGGER.info(strings2);
+			
+			c = 0;
+			if(strings2 != null){
+				for (String string : strings2) {
+//					LOGGER.info("col = "+c);
+					HSSFCell cell = row.createCell(c++);
+					cell.setCellValue(string);
+				}
+//			LOGGER.info("row added");
+			}
+		}
+
+		if(excelFileName!=null) {
+			FileOutputStream fileOut = new FileOutputStream(excelFileName);
+			
+			//write this workbook to an Outputstream.
+			if(wb!=null)
+				wb.write(fileOut);
+			fileOut.flush();
+			fileOut.close();
+		}
+		if(wb!=null)
+			wb.close();
+		//LOGGER.info("Excel File Updated "+excelFileName);
 	}
 
 }

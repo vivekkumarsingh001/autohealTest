@@ -1,26 +1,22 @@
 package common;
+import common.WebBrowser;
 
-public class Assertion {
-
-	private Assertion() {
-		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-	}
-
-	public static void isTrue(boolean result, String message) {
-		CommonUtil.error = "Assertion failure in step: " + message;
-
-		if (WebBrowser.boolEachSoftAssersion) {
-			Hooks.softAssertions.assertTrue(result, message);
-		} else {
-			if (!result) {
-				throw new AssertionError(message);
-			}
+import org.junit.Assert;
+public class Assertion{
+	public static void IsTrue(boolean result,String message) {		
+        CommonUtil.error="Assertion failure in step : "+message;
+		if(WebBrowser.boolEachSoftAssersion) {
+	    Hooks.softAssertions.assertTrue(result,message);
+		}
+		else {			
+			Assert.assertTrue(result);
 		}
 	}
-
-	public static void assertAll() {
-		if (WebBrowser.boolEachSoftAssersion) {
-			Hooks.softAssertions.assertAll();
-		}
+	public static void assertAll()
+	{
+		if(WebBrowser.boolEachSoftAssersion)
+        {
+             Hooks.softAssertions.assertAll();
+        }
 	}
 }

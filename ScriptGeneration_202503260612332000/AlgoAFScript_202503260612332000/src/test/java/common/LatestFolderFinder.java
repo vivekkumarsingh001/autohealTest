@@ -10,22 +10,19 @@ import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
-
 public class LatestFolderFinder {
 
 	private static final Pattern FOLDER_PATTERN = Pattern.compile("SparkReport (\\d+-\\w+-\\d+ \\d+-\\d+-\\d+)");
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("d-MMM-yy H-mm-ss");
-	static final Logger log = Logger.getLogger(LatestFolderFinder.class);
 
 	public static String GetLatestFolderName(String path) {
 		Path directoryPath = Paths.get(path);
 		String latestFolder = null;
 		try {
 			latestFolder = getLatestFolderName(directoryPath);
-			log.info("Latest Folder: " + latestFolder);
+			System.out.println("Latest Folder: " + latestFolder);
 		} catch (IOException e) {
-			log.error(e.getMessage());
+			e.printStackTrace();
 		}
 		return latestFolder;
 	}

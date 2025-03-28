@@ -1,22 +1,18 @@
 package common;
 
-import java.util.*;
+import java.nio.file.Paths;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
 
 public class DbHelper {
 
 	private static int iterations = 10;
-	static final Logger log = Logger.getLogger(DbHelper.class);
-	private static final String NULL_CONSTANT = "N/A";
-
-	private DbHelper() {
-		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-	}
 
 	// To get data from postgresql or redshift db and store in list
-	@SuppressWarnings("rawtypes")
 	public static List getData(String queryParam) {
 		List resultList = null;
 		String[] dbDetails = queryParam.split("_");
@@ -33,133 +29,128 @@ public class DbHelper {
 	}
 
 	public static String queryCopiedText(String query) {
-		String constCopiedText = "@copied_text";
-		if (query.contains(constCopiedText)) {
-			for (int i = 1; i <= iterations; i++) {
-				String value = constCopiedText + i;
-				if (query.contains(value)) {
-					query = query.replace(value, CommonUtil.getCopiedCountText(Integer.toString(i)));
-				}
+		if (query.contains("@copied_text")) {
+		for (int i = 1; i <= iterations; i++) {
+			String value = "@copied_text" + i;
+			if (query.contains(value)) {
+				query = query.replace(value, CommonUtil.getCopiedCountText(Integer.toString(i)));
 			}
-			if (query.contains(constCopiedText)) {
-				query = query.replace(constCopiedText, CommonUtil.getCopiedText());
-			}
-			if (query.contains(NULL_CONSTANT)) {
-				query = query.replace(String.format("'%s'", NULL_CONSTANT), "null");
-
-			}
+		}
+		if (query.contains("@copied_text")) {
+			query = query.replace("@copied_text", CommonUtil.getCopiedText());
+		}
+		if (query.contains("N/A")) {
+			query = query.replace("'N/A'", "null");
+		}
 		}
 		return query;
 	}
 
 	public static String alphaNumeric32CopiedText(String query) {
-		String alpaNumConstant = "@alphaNumeric32CopiedText";
-		if (query.contains(alpaNumConstant)) {
-			for (int i = 1; i <= iterations; i++) {
-				String value = alpaNumConstant + i;
-				if (query.contains(value)) {
-					query = query.replace(value, CommonUtil.getAlphaNum32CopiedCountText(Integer.toString(i)));
-				}
+		if (query.contains("@alphaNumeric32CopiedText")) {
+		for (int i = 1; i <= iterations; i++) {
+			String value = "@alphaNumeric32CopiedText" + i;
+			if (query.contains(value)) {
+				query = query.replace(value, CommonUtil.getAlphaNum32CopiedCountText(Integer.toString(i)));
 			}
-			if (query.contains(alpaNumConstant)) {
-				query = query.replace(alpaNumConstant, CommonUtil.getAlphaNum32CopiedText());
-			}
-			if (query.contains(NULL_CONSTANT)) {
-				query = query.replace(String.format("'%s'", NULL_CONSTANT), "null");
-			}
+		}
+		if (query.contains("@alphaNumeric32CopiedText")) {
+			query = query.replace("@alphaNumeric32CopiedText", CommonUtil.getAlphaNum32CopiedText());
+		}
+		if (query.contains("N/A")) {
+			query = query.replace("'N/A'", "null");
+		}
 		}
 		return query;
 	}
-
 	public static String alphaNumeric64CopiedText(String query) {
-		String alpaNumConstant64 = "@alphaNumeric64CopiedText";
-		if (query.contains(alpaNumConstant64)) {
-			for (int i = 1; i <= iterations; i++) {
-				String value = alpaNumConstant64 + i;
-				if (query.contains(value)) {
-					query = query.replace(value, CommonUtil.getAlphaNum64CopiedCountText(Integer.toString(i)));
-				}
+		if (query.contains("@alphaNumeric64CopiedText")) {
+		for (int i = 1; i <= iterations; i++) {
+			String value = "@alphaNumeric64CopiedText" + i;
+			if (query.contains(value)) {
+				query = query.replace(value, CommonUtil.getAlphaNum64CopiedCountText(Integer.toString(i)));
 			}
-			if (query.contains(alpaNumConstant64)) {
-				query = query.replace(alpaNumConstant64, CommonUtil.getAlphaNum64CopiedText());
-			}
-			if (query.contains(NULL_CONSTANT)) {
-				query = query.replace(String.format("'%s'", NULL_CONSTANT), "null");
-			}
+		}
+		if (query.contains("@alphaNumeric64CopiedText")) {
+			query = query.replace("@alphaNumeric64CopiedText", CommonUtil.getAlphaNum64CopiedText());
+		}
+		if (query.contains("N/A")) {
+			query = query.replace("'N/A'", "null");
+		}
 		}
 		return query;
 	}
 
-	public static String globalRandomText(String query) {
-		String globalRmCopiedText = "@globalRanodmCopiedText";
-		if (query.contains(globalRmCopiedText)) {
+	
+	public static String globalRandomText(String query) {	
+		
+	if (query.contains("@globalRanodmCopiedText")) {
+		
+		String regex = "@globalRanodmCopiedText(\\d+)"; // Match @globalRanodmCopiedText followed by digits
+		// Use Pattern and Matcher for dynamic replacement
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(query);
+		while (matcher.find()) {
+		    String matchedText = matcher.group(); // Full match, e.g., @globalRanodmCopiedText12
+		    String numberPart = matcher.group(1); // Extract the number part, e.g., 12
 
-			String regex = "@globalRanodmCopiedText(\\d+)"; // Match @globalRanodmCopiedText followed by digits
-			// Use Pattern and Matcher for dynamic replacement
-			Pattern pattern = Pattern.compile(regex);
-			Matcher matcher = pattern.matcher(query);
-			while (matcher.find()) {
-				String matchedText = matcher.group(); // Full match, e.g., @globalRanodmCopiedText12
-				String numberPart = matcher.group(1); // Extract the number part, e.g., 12
-				// Replace the matched text with the global random text
-				query = query.replace(matchedText, CommonUtil.getGlobalRandomText(numberPart));
-			}
-			if (query.contains(globalRmCopiedText)) {
-				query = query.replace(globalRmCopiedText, CommonUtil.getGlobalRandomText("1"));
-			}
-		} else if (query.contains("@")) {
-			for (String key : CommonUtil.globalUserValues.keySet()) {
-				if (query.contains(key)) {
-					query = query.replace("@" + key, CommonUtil.globalUserValues.get(key));
-				}
-			}
+		    // Replace the matched text with the global random text
+		    query = query.replace(matchedText, CommonUtil.getGlobalRandomText(numberPart));
 		}
+		if (query.contains("@globalRanodmCopiedText")) {
+			query = query.replace("@globalRanodmCopiedText", CommonUtil.getGlobalRandomText("1"));
+		}
+	}
 		return query;
 	}
 
 	public static String replaceGlobalText(String query) {
-
-		if (query.contains("@global_text")) {
-			for (int i = 1; i <= iterations; i++) {
-				String value = "@global_text" + i;
-				if (query.contains(value)) {
-					query = query.replace(value, CommonUtil.getGlobalText(Integer.toString(i)));
-				}
+		
+     if (query.contains("@global_text")) {
+		for (int i = 1; i <= iterations; i++) {
+			String value = "@global_text" + i;
+			if (query.contains(value)) {
+				query = query.replace(value, CommonUtil.getGlobalText(Integer.toString(i)));
 			}
+		}
 		}
 		return query;
 	}
 
 	public static String textRandomCopiedText(String query) {
-		String verifyRmCopiedText = "@verifyRandomCopiedText";
-		if (query.contains(verifyRmCopiedText)) {
+		if (query.contains("@verifyRandomCopiedText")) 			
+	 {
 			for (int i = 1; i <= iterations; i++) {
-				String value = verifyRmCopiedText + i;
+				String value = "@verifyRandomCopiedText" + i;
 				if (query.contains(value)) {
 					query = query.replace(value, CommonUtil.getRandomCopiedCountText(Integer.toString(i)));
 				}
 			}
-
-			if (query.contains(verifyRmCopiedText)) {
-				query = query.replace(verifyRmCopiedText, CommonUtil.getCopiedRandomText());
-			}
-		}
+		
+		if (query.contains("@verifyRandomCopiedText")) 	
+	 {
+		 query = query.replace("@verifyRandomCopiedText", CommonUtil.getCopiedRandomText());
+	 }
+	 }
 		return query;
 	}
 
 	public static String textRandomCopiedNumber(String query) {
-		String verifyRmCopiedNumber = "@verifyRandomCopiedNumber";
-		if (query.contains(verifyRmCopiedNumber)) {
+		if (query.contains("@verifyRandomCopiedNumber")) {
 			for (int i = 1; i <= iterations; i++) {
-				String value = verifyRmCopiedNumber + i;
+				String value = "@verifyRandomCopiedNumber" + i;
 				if (query.contains(value)) {
 					query = query.replace(value, CommonUtil.getRandomCopiedCountNumber(Integer.toString(i)));
 				}
 			}
-			if (query.contains(verifyRmCopiedNumber)) {
-				query = query.replace(verifyRmCopiedNumber, String.valueOf(CommonUtil.getCopiedRandomNumber()));
-			}
+	
+			if (query.contains("@verifyRandomCopiedNumber")) 
+		{
+			query = query.replace("@verifyRandomCopiedNumber", String.valueOf(CommonUtil.getCopiedRandomNumber()));
 		}
+			}
+		
+	
 		return query;
 	}
 

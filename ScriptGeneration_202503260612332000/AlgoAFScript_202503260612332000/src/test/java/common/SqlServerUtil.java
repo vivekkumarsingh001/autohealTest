@@ -6,10 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
 import java.sql.Statement;
 import java.util.Properties;
-import org.apache.log4j.Logger;
 
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
@@ -22,7 +22,6 @@ public class SqlServerUtil {
 	static String dbMasterUserPassword = "***master user password***";
 	private static String path = System.getProperty("user.dir");
 	static String query1 = null;
-	static final Logger log = Logger.getLogger(SqlServerUtil.class);
 
 	public SqlServerUtil() {
 
@@ -39,12 +38,14 @@ public class SqlServerUtil {
 	public void createConnection() {
 		try {
 			System.out.println("Entering getdata method... ");
-			dbURLdb = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(), "Sql_DbURL");
-			dbMasterUsername = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(), "Sql_DbUsername");
-			dbMasterUserPassword = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(), "Sql_DbPassword");
+			dbURLdb = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), "Sql_DbURL");
+			dbMasterUsername = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(),
+					"Sql_DbUsername");
+			dbMasterUserPassword = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(),
+					"Sql_DbPassword");
 			System.out.println(
 					"DB details. : " + dbURLdb + " username " + dbMasterUsername + " password " + dbMasterUserPassword);
 		} catch (Exception ex) {
@@ -65,18 +66,21 @@ public class SqlServerUtil {
 	}
 
 	public void setConnection() {
-		String sqlurl = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(), "Sql_DbURL");
-		String sqluser = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(), "Sql_DbUsername");
-		String sqlpassword = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(), "Sql_DbPassword");
+		String sqlurl = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), "Sql_DbURL");
+		String sqluser = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(),
+				"Sql_DbUsername");
+		String sqlpassword = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(),
+				"Sql_DbPassword");
 		System.out.println("DB details : " + sqlurl + " username " + sqluser + " password " + sqlpassword);
 
 		Properties prop = new Properties();
 		prop.setProperty("user", sqluser.trim());
 		prop.setProperty("password", sqlpassword.trim());
 		prop.setProperty("ssl", "true");
+		// props.setProperty("trustServerCertificate","false");
 		try {
 
 			try {
@@ -135,23 +139,32 @@ public class SqlServerUtil {
 			try {
 				connStatus = this.connection.isClosed();
 			} catch (SQLException e) {
-				log.error(e.getMessage());
+
 			}
 			if (!connStatus) {
+				// PreparedStatement prepareStatement=this.conn.prepareStatement(query.trim());
+				// executeUpdteStatus = prepareStatement.executeUpdate();
 				Statement statement = this.connection.createStatement();
 				executeUpdteStatus = statement.executeUpdate(query1.trim());
 				System.out.println("Query is Updated in DB!!! ");
 			} else {
-				query1 = CommonUtil.getXMLData(
-						Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(), query1);
+				query1 = CommonUtil.GetXMLData(
+						Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query1);
 				System.out.println("Query value is " + query1);
 				setConnection();
 				PreparedStatement prepareStatement = this.connection.prepareStatement(query1.trim());
 				executeUpdteStatus = prepareStatement.executeUpdate();
 				System.out.println(" DB update row count :" + executeUpdteStatus);
 			}
-		} catch (Exception e1) {
+		} catch (SQLException e1) {
+			System.out.println(e1.getMessage());
 			throw new CustomException(e1.getMessage(), e1);
+			// e.printStackTrace();
+		} catch (Exception e1) {
+			System.out.println(e1.getMessage());
+			throw new CustomException(e1.getMessage(), e1);
+			// e.printStackTrace();
+			// return false;
 		} finally {
 			if (this.connection != null) {
 				closeConnection();
@@ -162,19 +175,21 @@ public class SqlServerUtil {
 	public void select(String query) {
 		try {
 			String sqlQuerys = CommonUtil
-					.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(), query);
+					.GetXMLData(Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 			getConnection();
 			this.results = this.connection.prepareStatement(sqlQuerys).executeQuery();
 			List abc = CommonUtil.resultSetToArrayList(results);
 
 			System.out.println(abc.size());
 			for (int i = 0; i < abc.size(); i++) {
+
 				HashMap row = (HashMap) abc.get(i);
+
 				for (Object mapVal : row.values())
 					System.out.println(mapVal.toString());
 			}
+
 		} catch (SQLException exc) {
-			log.error(exc.getMessage());
 		} finally {
 			if (this.connection != null) {
 				closeConnection();
@@ -196,10 +211,19 @@ public class SqlServerUtil {
 			setConnection();
 			System.out.println("After  set Connection ");
 			this.results = this.connection.createStatement().executeQuery(query2);
+			// this.results = this.conn.prepareStatement(query).executeQuery();
 			resList = CommonUtil.resultSetToArrayList(results);
-			log.info("DB query result size : " + resList.size());
+
+			System.out.println("DB query result size : " + resList.size());
+
+		} catch (SQLException ex) {
+			System.out.println(" ERROR MESSAGE " + ex.getMessage());
+			ex.printStackTrace();
+			System.err.println(ex.getClass().getName() + ": " + ex.getMessage());
 		} catch (Exception ex) {
-			log.error(" ERROR MESSAGE " + ex.getMessage());
+			System.out.println(" ERROR MESSAGE " + ex.getMessage());
+			ex.printStackTrace();
+			System.err.println(ex.getClass().getName() + ": " + ex.getMessage());
 		} finally {
 			if (this.connection != null) {
 				closeConnection();
@@ -211,8 +235,10 @@ public class SqlServerUtil {
 	}
 
 	public String getSingleData(String query2) {
+		// System.out.println("getSingleData method -------------------------"+query2);
 		List resultsList = null;
 		try {
+
 			System.out.println("Entering getdata method ");
 			System.out.println("Query value " + query2);
 
@@ -227,9 +253,9 @@ public class SqlServerUtil {
 			System.out.println("getSingleData output -------------------------" + resultsList);
 			System.out.println("DB query result size : " + resultsList);
 			for (int i = 0; i < resultsList.size(); i++) {
-				HashMap hrow = (HashMap) resultsList.get(i);
-				System.out.println("row value is :" + hrow);
-				for (Object mapVal : hrow.values()) {
+				HashMap Hrow = (HashMap) resultsList.get(i);
+				System.out.println("row value is :" + Hrow);
+				for (Object mapVal : Hrow.values()) {
 					// System.out.println("mapvalue should be :"+mapVal);
 					ExtentCucumberAdapter.addTestStepLog("DB Value copied : " + mapVal);
 					return mapVal.toString();
@@ -249,14 +275,14 @@ public class SqlServerUtil {
 		return "";
 	}
 
-	public boolean verifyDbData(String paramquery) throws Exception {
+	public boolean verifyDbData(String Paramquery) throws Exception {
 
 		SqlServerUtil sql = new SqlServerUtil();
 		String query = null;
 		// String columnName=null;
 		String compareValue = null;
-		paramquery = CommonUtil.getData(paramquery);
-		String[] queryDetails = paramquery.split("--");
+		Paramquery=CommonUtil.GetData(Paramquery);
+		String[] queryDetails = Paramquery.split("--");
 		boolean status = false;
 
 		if (queryDetails.length == 2) {
@@ -285,8 +311,7 @@ public class SqlServerUtil {
 						// System.out.println("Mapvalue is String null :");
 						ExtentCucumberAdapter.addTestStepLog("DB Output : Null");
 					} else if (mapValue.toString().contains(compareValue)) {
-						ExtentCucumberAdapter
-								.addTestStepLog("DB Output : " + newresultList + " , Compare Value : " + compareValue);
+						ExtentCucumberAdapter.addTestStepLog("DB Output : " + newresultList + " , Compare Value : " + compareValue);
 						// System.out.println("Compare value is
 						// :"+mapVal.toString().contains(compareValue));
 						status = true;
@@ -304,7 +329,6 @@ public class SqlServerUtil {
 			try {
 				getConn().close();
 			} catch (SQLException e) {
-				log.error(e.getMessage());
 			}
 		}
 	}

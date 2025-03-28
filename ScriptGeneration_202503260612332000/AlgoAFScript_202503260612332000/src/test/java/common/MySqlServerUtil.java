@@ -7,8 +7,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
-import org.apache.log4j.Logger;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class MySqlServerUtil {
@@ -20,7 +22,6 @@ public class MySqlServerUtil {
 	static String dbsqlMasterUserPassword = "***master user password***";
 	private static String path = System.getProperty("user.dir");
 	static String query1 = null;
-	static final Logger log = Logger.getLogger(MySqlServerUtil.class);
 
 	public MySqlServerUtil() {
 	}
@@ -36,13 +37,13 @@ public class MySqlServerUtil {
 	public void createConnection() {
 		try {
 			System.out.println("Entering getdata method ");
-			dbsqlURLdb = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-					"MySql_DbURL");
-			dbsqlMasterUsername = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(), "MySql_DbUsername");
-			dbsqlMasterUserPassword = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(), "MySql_DbPassword");
-			log.info("DB details : " + dbsqlURLdb + " username " + dbsqlMasterUsername + " password "
+			dbsqlURLdb = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), "MySql_DbURL");
+			dbsqlMasterUsername = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), "MySql_DbUsername");
+			dbsqlMasterUserPassword = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), "MySql_DbPassword");
+			System.out.println("DB details : " + dbsqlURLdb + " username " + dbsqlMasterUsername + " password "
 					+ dbsqlMasterUserPassword);
 		} catch (Exception ex) {
 			throw new CustomException("DBSettings.xml file does not exist");
@@ -51,39 +52,46 @@ public class MySqlServerUtil {
 			if (this.conn == null) {
 				setConnection();
 			} else {
-				log.info("Already connected to DB");
+				System.out.println("Already connected to DB");
 			}
 		} catch (Exception e1) {
-			log.error(" ERROR MESSAGE " + e1.getMessage());
+			System.out.println(" ERROR MESSAGE " + e1.getMessage());
+			e1.printStackTrace();
+			System.err.println(e1.getClass().getName() + ": " + e1.getMessage());
 		}
 
 	}
 
 	public void setConnection() {
-		String url = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-				"MySql_DbURL");
-		String user = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-				"MySql_DbUsername");
-		String password = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-				"MySql_DbPassword");
-		log.info("DB details : " + url + " username " + user + " password " + password);
+		String url = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), "MySql_DbURL");
+		String user = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), "MySql_DbUsername");
+		String password = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), "MySql_DbPassword");
+		System.out.println("DB details : " + url + " username " + user + " password " + password);
 
 		Properties props = new Properties();
 		props.setProperty("user", user.trim());
 		props.setProperty("password", password.trim());
 		props.setProperty("ssl", "true");
+		// props.setProperty("trustServerCertificate","false");
 		try {
-			log.info("Before MySqlDB is not connected");
+			System.out.println("Before MySqlDB is not connected");
 			setConn(DriverManager.getConnection(url.trim(), props));
-			log.info("After MySqlDB is connected");
+			System.out.println("After MySqlDB is connected");
 			this.conn.setAutoCommit(true);
 			if (conn != null) {
-				log.info("Connected to the MySql database!");
+				System.out.println("Connected to the MySql database!");
 			} else {
-				log.error("Failed to make connection!");
+				System.out.println("Failed to make connection!");
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
 		} catch (Exception exc2) {
-			log.error(exc2.getClass().getName() + ": " + exc2.getMessage());
+			exc2.printStackTrace();
+			System.err.println(exc2.getClass().getName() + ": " + exc2.getMessage());
 		}
 	}
 
@@ -94,8 +102,13 @@ public class MySqlServerUtil {
 	public void closeConnection() {
 		try {
 			this.conn.close();
+		} catch (SQLException exc) {
+			System.out.println(exc.getMessage());
+			exc.printStackTrace();
+			System.err.println(exc.getClass().getName() + ": " + exc.getMessage());
 		} catch (Exception e2) {
-			log.error(e2.getClass().getName() + ": " + e2.getMessage());
+			e2.printStackTrace();
+			System.err.println(e2.getClass().getName() + ": " + e2.getMessage());
 		}
 	}
 
@@ -107,50 +120,63 @@ public class MySqlServerUtil {
 		int executeUpdteStatus = 0;
 		boolean connStatus = true;
 		try {
+			// query1 = CommonUtil.GetXMLData(
+			// Paths.get(path.toString(), "src", "test", "java",
+			// "DBSettings.xml").toString(), queryParam);
 			System.out.println("Query value " + query1);
 			createConnection();
 			try {
 				connStatus = this.conn.isClosed();
 			} catch (SQLException e) {
-				log.error(e.getMessage());
 			}
 			if (!connStatus) {
+				// PreparedStatement prepareStatement=this.conn.prepareStatement(query.trim());
+				// executeUpdteStatus = prepareStatement.executeUpdate();
 				Statement statement = this.conn.createStatement();
 				executeUpdteStatus = statement.executeUpdate(query1.trim());
-				log.info("Query is Updated in DB ");
+				System.out.println("Query is Updated in DB ");
+
 			} else {
-				query1 = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-						query1);
-				log.info("Query value " + query1);
+				query1 = CommonUtil.GetXMLData(
+						Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query1);
+				System.out.println("Query value " + query1);
+
 				setConnection();
 				PreparedStatement prepareStatement = this.conn.prepareStatement(query1.trim());
 				executeUpdteStatus = prepareStatement.executeUpdate();
-				log.info(" DB update row count :" + executeUpdteStatus);
+				System.out.println(" DB update row count :" + executeUpdteStatus);
 			}
-		} catch (Exception e) {
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
 			throw new CustomException(e.getMessage(), e);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			throw new CustomException(e.getMessage(), e);
+			// e.printStackTrace();
+			// return false;
 		} finally {
 			if (this.conn != null) {
 				closeConnection();
 			}
+
 		}
+
 	}
 
 	public void select(String query) {
 		try {
-			String sqlQuery = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-					query);
+			String sqlQuery = CommonUtil
+					.GetXMLData(Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 			getConnection();
 			this.results = this.conn.prepareStatement(sqlQuery).executeQuery();
 			List abd = CommonUtil.resultSetToArrayList(results);
-			log.info(abd.size());
+			System.out.println(abd.size());
 			for (int i = 0; i < abd.size(); i++) {
 				HashMap row = (HashMap) abd.get(i);
 				for (Object mapVal : row.values())
-					log.info(mapVal.toString());
+					System.out.println(mapVal.toString());
 			}
 		} catch (SQLException e1) {
-			log.error(e1.getMessage());
 		} finally {
 			if (this.conn != null) {
 				closeConnection();
@@ -161,15 +187,22 @@ public class MySqlServerUtil {
 	public List getdetails(String query) {
 		List resultList = null;
 		try {
-			log.info("Before  setConnection ");
+			System.out.println("Before  setConnection ");
 			setConnection();
-			log.info("After  setConnection ");
+			System.out.println("After  setConnection ");
 			this.results = this.conn.createStatement().executeQuery(query);
+			// this.results = this.conn.prepareStatement(query).executeQuery();
 			resultList = CommonUtil.resultSetToArrayList(results);
-			log.info("DB query result size : " + resultList.size());
+
+			System.out.println("DB query result size : " + resultList.size());
+		} catch (SQLException excep) {
+			System.out.println(" ERROR MESSAGE " + excep.getMessage());
+			excep.printStackTrace();
+			System.err.println(excep.getClass().getName() + ": " + excep.getMessage());
 		} catch (Exception exc) {
-			log.error(" ERROR MESSAGE " + exc.getMessage());
-			log.error(exc.getClass().getName() + ": " + exc.getMessage());
+			System.out.println(" ERROR MESSAGE " + exc.getMessage());
+			exc.printStackTrace();
+			System.err.println(exc.getClass().getName() + ": " + exc.getMessage());
 		} finally {
 			if (this.conn != null) {
 				closeConnection();
@@ -181,21 +214,30 @@ public class MySqlServerUtil {
 	public List getData(String query2) {
 		List resultList = null;
 		try {
-			log.info("Entering getdata method.. ");
-			log.info("Query value is " + query2);
+			System.out.println("Entering getdata method.. ");
+			System.out.println("Query value is " + query2);
 		} catch (Exception exc) {
 			throw new CustomException("DBSettings.xml file does not exist");
 		}
+
 		try {
-			log.info("Before  setConnection... ");
+			System.out.println("Before  setConnection... ");
 			setConnection();
-			log.info("After  setConnection... ");
+			System.out.println("After  setConnection... ");
 			this.results = this.conn.createStatement().executeQuery(query2);
+			// this.results = this.conn.prepareStatement(query).executeQuery();
 			resultList = CommonUtil.resultSetToArrayList(results);
-			log.info("DB query result size : " + resultList.size());
+
+			System.out.println("DB query result size : " + resultList.size());
+
+		} catch (SQLException e) {
+			System.out.println(" ERROR MESSAGE.. " + e.getMessage());
+			e.printStackTrace();
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
 		} catch (Exception e) {
-			log.error(" ERROR MESSAGE.. " + e.getMessage());
-			log.error(e.getClass().getName() + ": " + e.getMessage());
+			System.out.println(" ERROR MESSAGE.. " + e.getMessage());
+			e.printStackTrace();
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
 		} finally {
 			if (this.conn != null) {
 				closeConnection();
@@ -205,32 +247,43 @@ public class MySqlServerUtil {
 	}
 
 	public String getSingleData(String query2) {
+		// System.out.println("getSingleData method -------------------------"+query2);
 		List resultList = null;
 		try {
-			log.info("Entering getdata method ");
-			log.info("Query value " + query2);
+
+			System.out.println("Entering getdata method ");
+			// query1 = CommonUtil.GetXMLData(
+			// Paths.get(path.toString(), "src", "test", "java",
+			// "DBSettings.xml").toString(), queryParam);
+			System.out.println("Query value " + query2);
+
 		} catch (Exception ex) {
 			throw new CustomException("DBSettings.xml file does not exist");
 		}
 
 		try {
-			log.info("Before  setConnection ");
+			System.out.println("Before  setConnection ");
 			setConnection();
-			log.info("After  setConnection ");
+			System.out.println("After  setConnection ");
+			// this.results = this.conn.createStatement().executeQuery(query2);
+
+			// this.results = this.conn.prepareStatement(query).executeQuery();
 			resultList = getData(query2);
-			log.info("getSingleData output -------------------------" + resultList);
-			log.info("DB query result size : " + resultList);
+			System.out.println("getSingleData output -------------------------" + resultList);
+			System.out.println("DB query result size : " + resultList);
 			for (int i = 0; i < resultList.size(); i++) {
 				HashMap rows = (HashMap) resultList.get(i);
-				log.info("row value is :" + rows);
+				System.out.println("row value is :" + rows);
 				for (Object mapVal : rows.values()) {
+					// System.out.println("mapvalue should be :"+mapVal);
 					ExtentCucumberAdapter.addTestStepLog("DB Value copied : " + mapVal);
 					return mapVal.toString();
 				}
 			}
 		} catch (Exception ex) {
-			log.error(" ERROR MESSAGE -  " + ex.getMessage());
-			log.error(ex.getClass().getName() + ": " + ex.getMessage());
+			System.out.println(" ERROR MESSAGE -  " + ex.getMessage());
+			ex.printStackTrace();
+			System.err.println(ex.getClass().getName() + ": " + ex.getMessage());
 		} finally {
 			if (this.conn != null) {
 				closeConnection();
@@ -239,37 +292,48 @@ public class MySqlServerUtil {
 		return "";
 	}
 
-	public boolean verifyDbData(String paramquery) throws Exception {
+	public boolean verifyDbData(String Paramquery) throws Exception {
+
 		MySqlServerUtil sql = new MySqlServerUtil();
+		// System.out.println("verifyDbdata param
+		// query--------------------------->>"+Paramquery);
+		// String commandParam = "select Version from
+		// rtlspf_algoshack.dbo.NotificationBatch where Id=2449706--Version--1";
 		String query1 = null;
+		// String columnNames=null;
 		String compareValues = null;
-		String[] queryDetails = paramquery.split("--");
+		String[] queryDetails = Paramquery.split("--");
 		boolean status = false;
 		if (queryDetails.length == 2) {
 			query1 = queryDetails[0];
 			compareValues = queryDetails[1];
 			compareValues = compareValues.replaceAll("\\[", "").replaceAll("\\]", "");
 		} else {
+			// System.out.println("Invalid param------------------------");
 			ExtentCucumberAdapter.addTestStepLog("Invalid parameters");
 			throw new Exception("Invalid parameters");
 		}
 
 		try {
 
-			log.info("compareValue Should be : " + compareValues);
+			System.out.println("compareValue Should be : " + compareValues);
 			List dataList = getData(query1);
 			System.out.println("DB output : " + dataList);
 			for (int i = 0; i < dataList.size(); i++) {
 				HashMap row = (HashMap) dataList.get(i);
 				System.out.println("row value is :" + row);
 				for (Object mapVal : row.values()) {
+					// System.out.println("mapvalue should be :"+mapVal);
 					if (mapVal == null) {
 						ExtentCucumberAdapter.addTestStepLog("DB Output. : Null");
+						// System.out.println("Mapvalue is null :");
 					} else if (mapVal.toString().equals("null")) {
+						// System.out.println("Mapvalue is String null :");
 						ExtentCucumberAdapter.addTestStepLog("DB Output. : Null");
 					} else if (mapVal.toString().contains(compareValues)) {
-						ExtentCucumberAdapter
-								.addTestStepLog("DB Output. : " + dataList + " , Compare Value : " + compareValues);
+						ExtentCucumberAdapter.addTestStepLog("DB Output. : " + dataList + " , Compare Value : " + compareValues);
+						// System.out.println("Compare value is
+						// :"+mapVal.toString().contains(compareValue));
 						status = true;
 						return true;
 					}
@@ -278,14 +342,16 @@ public class MySqlServerUtil {
 			return status;
 		}
 
-		catch (Exception exc1) {
+		catch (Exception exc1) {			
+			// System.out.println(" ERROR : " + exc.getMessage());
 			ExtentCucumberAdapter.addTestStepLog("Error : " + exc1);
+			exc1.printStackTrace();
 			return false;
 		} finally {
 			try {
 				getConn().close();
 			} catch (SQLException ex2) {
-				log.error(ex2.getMessage());
+
 			}
 		}
 	}
@@ -313,7 +379,7 @@ public class MySqlServerUtil {
 			columnValue = (String) columnObject;
 
 		}
-		log.info("result value " + columnValue);
+		System.out.println("result value " + columnValue);
 
 		return compareValue.equalsIgnoreCase(columnValue);
 	}

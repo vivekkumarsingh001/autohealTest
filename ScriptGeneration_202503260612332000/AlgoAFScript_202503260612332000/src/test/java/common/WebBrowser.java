@@ -1,33 +1,52 @@
 package common;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.devtools.DevToolsException;
 import org.openqa.selenium.devtools.v123.network.Network;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.MalformedURLException;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.remote.SessionId;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.devtools.v123.network.model.RequestId;
 import java.util.Optional;
 import org.openqa.selenium.devtools.DevTools;
+import org.openqa.selenium.devtools.DevToolsException;
+import org.openqa.selenium.devtools.v123.network.Network;
+import org.openqa.selenium.devtools.v123.network.model.RequestId;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 import java.time.Duration;
-import org.apache.log4j.Logger;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import org.openqa.selenium.Cookie;
+
 import java.nio.file.Paths;
 
 public class WebBrowser {
+	//public static WebDriver driver;
 	private static WebDriver driver;
 	private static String path = System.getProperty("user.dir");
 	static String parentWindowHandle;
@@ -50,52 +69,56 @@ public class WebBrowser {
 	public static String type = "";
 	public static String hubURL = "";
 	public static DevTools devTools;
-	static final Logger log = Logger.getLogger(WebBrowser.class);
+	
 
 	public static WebDriver getBrowser(boolean launchBrowser) {
 		if ((driver == null || launchBrowser) && !isBrowserOpen) {
 
 			if (CommonUtil.browserName != null) {
 				browserType = CommonUtil.browserName;
-				log.info("browserName-----------------" + browserType);
+				System.out.println("browserName-----------------" + browserType);
 			} else {
-				browserType = CommonUtil.getXMLData(
-						Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "BrowserType");
+				browserType = CommonUtil.GetXMLData(
+						Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+						"BrowserType");
 			}
-			PageLoadTimeout = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+			PageLoadTimeout = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 					"MaximumTimeInSecondsToWaitForControl");
-			DirectoryPAth = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+			DirectoryPAth = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 					"DownloadInCurrentDirectory");
-			HighLightElement = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+			HighLightElement = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 					"HighLightWebElement");
-			EachstepScreenshot = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+			EachstepScreenshot = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 					"EnableEachStepScreenshot");
-			softassertion = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+			softassertion = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 					"EnableSoftassertion");
-			profilePath = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "ProfilePath");
-			String pathOfBrowser = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "WebdriverPath");
+			profilePath = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+					"ProfilePath");
+			String pathOfBrowser = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+					"WebdriverPath");
 
-			if (HighLightElement.toUpperCase().equals("TRUE")) {
-				boolHighLightElement = true;
+			if(HighLightElement.toUpperCase().equals("TRUE")) {
+				boolHighLightElement=true;
 			}
-			if (EachstepScreenshot.toUpperCase().equals("TRUE")) {
-				boolEachstepScreenshot = true;
+			if(EachstepScreenshot.toUpperCase().equals("TRUE")) {
+				boolEachstepScreenshot=true;
 			}
-			if (softassertion.toUpperCase().equals("TRUE")) {
-				boolEachSoftAssersion = true;
+			if(softassertion.toUpperCase().equals("TRUE")) {
+				boolEachSoftAssersion=true;
 			}
 			if (browserType.equals("Firefox")) {
 				System.out.print("Launching Firefox");
 				if (pathOfBrowser.equals("Na")) {
 					WebDriverManager.firefoxdriver().clearDriverCache().setup();
-				} else {
+				}
+				else {
 					System.setProperty("webdriver.gecko.driver", pathOfBrowser + "/geckodriver.exe");
 				}
 				driver = new FirefoxDriver();
@@ -104,38 +127,52 @@ public class WebBrowser {
 				System.out.print("Launching Edge");
 				if (pathOfBrowser.equals("Na")) {
 					WebDriverManager.edgedriver().clearDriverCache().setup();
-				} else {
+				}
+				else {
 					System.setProperty("webdriver.edge.driver", pathOfBrowser + "/msedgedriver.exe");
 				}
 				driver = new EdgeDriver();
 				driver.manage().window().maximize();
 			} else if (browserType.toUpperCase().equals("Lambda".toUpperCase())) {
 				System.out.print("Attempting connection to LambdaTest");
-				lambdaTestBuild = CommonUtil.getXMLData(
-						Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+				lambdaTestBuild = CommonUtil.GetXMLData(
+						Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 						"LambdaTestBuild");
-				lambdaTestURL = CommonUtil.getXMLData(
-						Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "LambdaTestURL");
-				NetworkLog = CommonUtil.getXMLData(
-						Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "NetworkLog");
+				lambdaTestURL = CommonUtil.GetXMLData(
+						Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+						"LambdaTestURL");
+				NetworkLog = CommonUtil.GetXMLData(
+						Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+						"NetworkLog");
 
 				RemoteWebDriver remotedriver = null;
 				DesiredCapabilities caps = new DesiredCapabilities();
 				caps.setCapability("build", lambdaTestBuild);
+
+				//String testRailId=CommonUtil.getTestRailID();
+
 				caps.setCapability("name", "");
 				caps.setCapability("platform", "Windows 10");
 				caps.setCapability("browserName", "Chrome");
 				caps.setCapability("version", "97.0");
-				caps.setCapability("network", NetworkLog);
+				caps.setCapability("network",NetworkLog);
 				System.out.println("Desired caps made successfully");
 
 				try {
 
-					remotedriver = new RemoteWebDriver(new URL(lambdaTestURL), caps);
+					remotedriver = new RemoteWebDriver(new URL(lambdaTestURL),
+							caps);
 					SessionId sessionid = remotedriver.getSessionId();
-					log.info("Driver session id is :" + sessionid.toString());
+					System.out.print("Driver session id is :"+sessionid.toString());
+
+				} catch (MalformedURLException e) {
+
+					System.out.println("Invalid grid URL");
+
 				} catch (Exception e) {
-					log.error(e.getMessage());
+
+					System.out.println(e.getMessage());
+
 				}
 
 				driver = remotedriver;
@@ -143,19 +180,24 @@ public class WebBrowser {
 				System.out.print("Launching Chrome");
 				if (pathOfBrowser.equals("Na")) {
 					WebDriverManager.chromedriver().clearDriverCache().setup();
-				} else {
+				}
+				else {
 					System.setProperty("webdriver.chrome.driver", pathOfBrowser + "/chromedriver.exe");
 				}
-				// Create a map to store preferences
+				//Create a map to store  preferences
 				Map<String, Object> prefs = new HashMap<String, Object>();
 				// add key and value to map as follow to switch off browser notification
 				// Pass the argument 1 to allow and 2 to block
 				prefs.put("profile.default_content_setting_values.notifications", 2);
+				//DesiredCapabilities caps = DesiredCapabilities.chrome();
 				DesiredCapabilities caps = new DesiredCapabilities();
 				LoggingPreferences logPrefs = new LoggingPreferences();
 				logPrefs.enable(LogType.BROWSER, Level.ALL);
+				//caps.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
 				logPrefs.enable(LogType.PERFORMANCE, Level.ALL);
 				caps.setCapability("goog:loggingPrefs", logPrefs);
+
+				// Create an instance of ChromeOptions
 				if (DirectoryPAth.toUpperCase().equals("TRUE")) {
 					String downloadFilepath = System.getProperty("user.dir");
 					prefs.put("download.default_directory", downloadFilepath);
@@ -169,16 +211,12 @@ public class WebBrowser {
 					options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
 					options.addArguments("window-size=1920,1080");
 					options.addArguments("--disable-gpu");
-					// Set a custom user-agent string; sometimes necessary for avoiding bot
-					// detection or simulating specific browsers
-					options.addArguments(
-							"user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36");
+					options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36");
 				}
 
 				if (profilePath != null && !profilePath.isEmpty()) {
-					// Here you set the path of the profile ending with User Data not the profile
-					// folder
-					options.addArguments("user-data-dir=" + profilePath);
+					// Here you set the path of the profile ending with User Data not the profile folder
+					options.addArguments("user-data-dir="+profilePath);
 				}
 				options.addArguments("--ignore-ssl-errors=yes");
 				options.addArguments("--ignore-certificate-errors");
@@ -193,18 +231,24 @@ public class WebBrowser {
 					options.addArguments("--kiosk");
 				}
 
-				type = CommonUtil.getXMLData(
-						Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "Type");
+				type = CommonUtil.GetXMLData(
+						Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+						"Type");
 
 				if (type.toUpperCase().contains("GRID")) {
-					hubURL = CommonUtil.getXMLData(
-							Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "HubURL");
+					hubURL = CommonUtil.GetXMLData(
+							Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+							"HubURL");
 					try {
 						driver = new RemoteWebDriver(new URL(hubURL), options);
 					} catch (MalformedURLException e) {
+						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				} else {
+					// Now Pass ChromeOptions instance to ChromeDriver Constructor to initialize
+					// chrome driver which will switch off this browser notification on the chrome
+					// browser
 					options.merge(caps);
 					driver = new ChromeDriver(options);
 					driver.manage().window().maximize();
@@ -212,6 +256,8 @@ public class WebBrowser {
 			}
 			webdriverList.add(driver);
 			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Integer.parseInt(PageLoadTimeout)));
+			//driver.manage().timeouts().pageLoadTimeout(Integer.parseInt(PageLoadTimeout), TimeUnit.SECONDS);
+
 			parentWindowHandle = driver.getWindowHandle();
 			isBrowserOpen = true;
 		} else if (launchBrowser) {
@@ -223,94 +269,128 @@ public class WebBrowser {
 
 	}
 
-	@SuppressWarnings("deprecation")
 	public static WebDriver multipleBrowserInstance() {
 
 		if (CommonUtil.browserName != null) {
 			browserType = CommonUtil.browserName;
 			System.out.println("browserName-----------------" + browserType);
 		} else {
-			browserType = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "BrowserType");
+			browserType = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+					"BrowserType");
 		}
-		PageLoadTimeout = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+		PageLoadTimeout = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 				"MaximumTimeInSecondsToWaitForControl");
-		DirectoryPAth = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+		DirectoryPAth = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 				"DownloadInCurrentDirectory");
-		HighLightElement = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "HighLightWebElement");
-		EachstepScreenshot = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+		HighLightElement = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+				"HighLightWebElement");
+		EachstepScreenshot = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 				"EnableEachStepScreenshot");
-		softassertion = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "EnableSoftassertion");
+		softassertion = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+				"EnableSoftassertion");
 
-		profilePath = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "ProfilePath");
+		profilePath = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+				"ProfilePath");	
 
-		if (HighLightElement.toUpperCase().equals("TRUE")) {
-			boolHighLightElement = true;
+		if(HighLightElement.toUpperCase().equals("TRUE")) {
+			boolHighLightElement=true;
 		}
-		if (EachstepScreenshot.toUpperCase().equals("TRUE")) {
-			boolEachstepScreenshot = true;
+		if(EachstepScreenshot.toUpperCase().equals("TRUE")) {
+			boolEachstepScreenshot=true;
 		}
-		if (softassertion.toUpperCase().equals("TRUE")) {
-			boolEachSoftAssersion = true;
+		if(softassertion.toUpperCase().equals("TRUE")) {
+			boolEachSoftAssersion=true;
 		}
 		if (browserType.equals("Firefox")) {
 			System.out.print("Launching Firefox");
+			//System.setProperty("webdriver.gecko.driver",
+			//		Paths.get(path.toString(), "src", "test", "resources", "geckodriver.exe").toString());
 			WebDriverManager.firefoxdriver().setup();
 			driver = new FirefoxDriver();
 			driver.manage().window().maximize();
 		} else if (browserType.equals("Edge")) {
+
 			System.out.print("Launching Edge");
+			//System.setProperty("webdriver.edge.driver",
+			//		Paths.get(path.toString(), "src", "test", "resources", "msedgedriver.exe").toString());
 			WebDriverManager.edgedriver().setup();
 			driver = new EdgeDriver();
 			driver.manage().window().maximize();
 		} else if (browserType.toUpperCase().equals("Lambda".toUpperCase())) {
 			System.out.print("Attempting connection to LambdaTest");
-			lambdaTestBuild = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "LambdaTestBuild");
-			lambdaTestURL = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "LambdaTestURL");
-			NetworkLog = CommonUtil.getXMLData(
-					Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "NetworkLog");
+			lambdaTestBuild = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+					"LambdaTestBuild");
+			lambdaTestURL = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+					"LambdaTestURL");
+			NetworkLog = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+					"NetworkLog");
 
 			RemoteWebDriver remotedriver = null;
 			DesiredCapabilities caps = new DesiredCapabilities();
 			caps.setCapability("build", lambdaTestBuild);
+
+			//String testRailId=CommonUtil.getTestRailID();
+
 			caps.setCapability("name", "");
 			caps.setCapability("platform", "Windows 10");
 			caps.setCapability("browserName", "Chrome");
 			caps.setCapability("version", "97.0");
-			caps.setCapability("network", NetworkLog);
+			caps.setCapability("network",NetworkLog);
 			System.out.println("Desired caps made successfully");
 
 			try {
-				remotedriver = new RemoteWebDriver(new URL(lambdaTestURL), caps);
+
+				remotedriver = new RemoteWebDriver(new URL(lambdaTestURL),
+						caps);
 				SessionId sessionid = remotedriver.getSessionId();
-				log.info("Driver session id is :" + sessionid.toString());
+				System.out.print("Driver session id is :"+sessionid.toString());
+
+			} catch (MalformedURLException e) {
+
+				System.out.println("Invalid grid URL");
+
 			} catch (Exception e) {
-				log.error(e.getMessage());
+
+				System.out.println(e.getMessage());
+
 			}
 
 			driver = remotedriver;
 		} else {
-			log.info("Launching Chrome");
+			System.out.print("Launching Chrome");
+			//				if (isWindows()) {
+			//				System.setProperty("webdriver.chrome.driver",
+			//						Paths.get(path.toString(), "src", "test", "resources", "chromedriver.exe").toString());
+			//			} else {
+			//				System.setProperty("webdriver.chrome.driver",
+			//					Paths.get(path.toString(), "src", "test", "resources", "chromedriver").toString());
+			//			}
 			WebDriverManager.chromedriver().setup();
-			// Create a map to store preferences
+			//Create a map to store  preferences
 			Map<String, Object> prefs = new HashMap<String, Object>();
-			// add key and value to map as follow to switch off browser notification
-			// Pass the argument 1 to allow and 2 to block
+
+			//add key and value to map as follow to switch off browser notification
+			//Pass the argument 1 to allow and 2 to block
 			prefs.put("profile.default_content_setting_values.notifications", 2);
+			//DesiredCapabilities caps = DesiredCapabilities.chrome();
 			DesiredCapabilities caps = new DesiredCapabilities();
 			LoggingPreferences logPrefs = new LoggingPreferences();
 			logPrefs.enable(LogType.BROWSER, Level.ALL);
+			//caps.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
 			logPrefs.enable(LogType.PERFORMANCE, Level.ALL);
 			caps.setCapability("goog:loggingPrefs", logPrefs);
-			// Create an instance of ChromeOptions
+
+			//Create an instance of ChromeOptions
 			if (DirectoryPAth.toUpperCase().equals("TRUE")) {
 				String downloadFilepath = System.getProperty("user.dir");
 				prefs.put("download.default_directory", downloadFilepath);
@@ -326,12 +406,13 @@ public class WebBrowser {
 			}
 
 			if (profilePath != null && !profilePath.isEmpty()) {
-				options.addArguments("user-data-dir=" + profilePath);
+				// Here you set the path of the profile ending with User Data not the profile folder
+				options.addArguments("user-data-dir="+profilePath);
 			}
 
 			options.addArguments("--ignore-ssl-errors=yes");
 			options.addArguments("--ignore-certificate-errors");
-			// set ExperimentalOption - prefs
+			//set ExperimentalOption - prefs
 			options.setExperimentalOption("prefs", prefs);
 			options.addArguments("use-fake-ui-for-media-stream");
 			options.addArguments("use-fake-device-for-media-stream");
@@ -340,34 +421,44 @@ public class WebBrowser {
 				options.addArguments("--kiosk");
 			}
 
-			type = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+			type = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 					"Type");
 
 			if (type.toUpperCase().contains("GRID")) {
-				hubURL = CommonUtil.getXMLData(
-						Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "HubURL");
+				hubURL = CommonUtil.GetXMLData(
+						Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+						"HubURL");
 				try {
 					driver = new RemoteWebDriver(new URL(hubURL), options);
 				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} else {
+				// Now Pass ChromeOptions instance to ChromeDriver Constructor to initialize
+				// chrome driver which will switch off this browser notification on the chrome
+				// browser
 				options.merge(caps);
 				driver = new ChromeDriver(options);
 				driver.manage().window().maximize();
 			}
 		}
+		//webdriverList.add(driver);
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Integer.parseInt(PageLoadTimeout)));
+		//driver.manage().timeouts().pageLoadTimeout(Integer.parseInt(PageLoadTimeout), TimeUnit.SECONDS);
+
 		parentWindowHandle = driver.getWindowHandle();
 		isBrowserOpen = true;
+
 		return driver;
 	}
-
 	public static WebDriver getBrowser() {
 		return getBrowser(launchNewBrowser);
 	}
 
 	public void setBrowser(WebDriver webDriver) {
+
 		this.driver = webDriver;
 	}
 
@@ -377,32 +468,38 @@ public class WebBrowser {
 			driver.switchTo().window(tabs2.get(tab));
 			driver.close();
 		} catch (Exception e) {
-			log.error(e.getMessage());
+
 		}
 
 	}
 
 	public static void LaunchApplication(boolean openBrowser) {
-		String autUrl = "";
-		if (CommonUtil.getAppUrl() != null) {
-			autUrl = CommonUtil.getAppUrl();
-		} else {
-			autUrl = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
-					"URL");
-		}
-		if (driver == null) {
-			getBrowser(openBrowser);
-		}
-		driver.get(autUrl);
-
-		if (Hooks.cookiesAdded) {
-
-			for (Cookie cookie : Hooks.cookies) {
-				driver.manage().addCookie(cookie);
+							
+			String autUrl = "";
+			if (CommonUtil.appUrl != null) {
+				autUrl = CommonUtil.appUrl;
+				System.out.println("appurl-----------" + autUrl);
+			} else {
+				autUrl = CommonUtil.GetXMLData(
+						Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(), "URL");
 			}
-			driver.navigate().refresh();
-		}
-
+			if(driver == null)
+			{
+				getBrowser(openBrowser);
+			}
+			
+			driver.get(autUrl);
+		
+			if(Hooks.CookiesAdded) 
+			{
+			
+			      for(Cookie cookie:Hooks.cookies)
+			  {
+			    	  driver.manage().addCookie(cookie);
+			  }
+			      driver.navigate().refresh();
+			}
+		
 	}
 
 	public static void LaunchApplication(boolean openBrowser, String autUrl) {
@@ -428,7 +525,7 @@ public class WebBrowser {
 		driver.navigate().to(autUrl);
 	}
 
-	public static void openNewTab(boolean openBrowser, String autUrl) {
+	public static void openNewTab(boolean openBrowser, String autUrl) {		
 		((JavascriptExecutor) driver).executeScript("window.open()");
 		ArrayList<String> tabs = new ArrayList<String>(driver.getWindowHandles());
 		for (int i = 0; i < tabs.size(); i++) {
@@ -442,11 +539,15 @@ public class WebBrowser {
 		String autUrl = "";
 		if (RestAssuredUtil.apiCmdUrl != null) {
 			autUrl = RestAssuredUtil.apiCmdUrl;
+			System.out.println("api url-----------" + autUrl);
 		} else {
-			autUrl = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
-					"APIURL");
+			autUrl = CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(), "APIURL");
 		}
+		// getBrowser();
 		RestAssuredUtil.setAPIURL(autUrl);
+		// driver.get(autUrl);
+
 	}
 
 	public static String getParentWindowHandle() {
@@ -475,92 +576,114 @@ public class WebBrowser {
 	public static boolean isBrowserOpened() {
 		return isBrowserOpen;
 	}
-
-	public static boolean DevTool(List<String> list, String url) {
+	public static boolean DevTool(List<String> list, String URL) {
+		// Cast WebDriver to DevTools to access DevTools methods
 		devTools = ((ChromeDriver) driver).getDevTools();
+ 
+		// Create a session to use the Network domain
 		devTools.createSession();
+ 
 		devTools.send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));
-		Boolean flag = true;
+ 
+		Boolean Flag = true;
 		AtomicInteger count = new AtomicInteger(0);
 		final RequestId[] id = new RequestId[3];
+		// String ResponseBody = "";
 		List<String> responseBodies = new ArrayList<>();
+ 
+//		for (String item : list) 
+//			System.out.println(item);
+//		
+ 
+		//
 		for (int retry = 0; retry < 5; retry++) {
 			driver.navigate().refresh();
 			WebBrowserUtil.ScrollDown(String.valueOf(10));
 			devTools.addListener(Network.responseReceived(), responseReceived -> {
-
+ 
 				String responseUrl = responseReceived.getResponse().getUrl();
-				log.info("Received response URL: " + responseUrl);
-
-				if (responseUrl.equals(url)) {
+				System.out.println("Received response URL: " + responseUrl);
+ 
+				if (responseUrl.equals(URL)) {
 					count.getAndIncrement();
 					if (count.get() <= 3) {
 						id[count.get() - 1] = responseReceived.getRequestId();
-						log.info("ID" + count.get() + ": " + id[count.get() - 1]);
+						System.out.println("ID" + count.get() + ": " + id[count.get() - 1]);
 						ExtentCucumberAdapter.addTestStepLog("ID" + count.get() + ": " + id[count.get() - 1]);
-
+ 
 					}
 				}
 			});
-
+ 
 			try {
-				Thread.sleep(14000);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				log.error("Thread sleep interrupted: " + e.getMessage());
+				Thread.sleep(9000);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
-
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			for (int i = 0; i < id.length; i++) {
-				if (id[i] != null) {
-					try {
-						String responseBody = devTools.send(Network.getResponseBody(id[i])).getBody();
-						responseBodies.add(responseBody);
-					} catch (Exception e) {
-						log.error("Not able to capture response body in id[" + i + "]: " + e.getMessage());
-					}
-				}
-			}
+	            if (id[i] != null) {
+	                try {
+	                    String responseBody = devTools.send(Network.getResponseBody(id[i])).getBody();
+	                    responseBodies.add(responseBody);
+	                   // System.out.println("ResponseBody" + (i + 1) + " = " + responseBody);
+	                } catch (Exception e) {
+	                    System.out.println("Not able to capture response body in id[" + i + "]: " + e.getMessage());
+	                }
+	            }
+	        }
 			if (!responseBodies.isEmpty()) {
-				break;
+				break; // Exit retry loop if response bodies are successfully captured
 			} else {
-				log.info("Retrying to fetch response bodies...");
+				System.out.println("Retrying to fetch response bodies...");
 			}
 		}
 		if (!responseBodies.isEmpty()) {
 			for (String responseBody : responseBodies) {
 				if (responseBody.contains(list.get(list.size() - 1))) {
-					for (String item : list) {
-						if (responseBody.contains(item)) {
-							ExtentCucumberAdapter.addTestStepLog("Yes! " + item + " it is present in the algonomy url");
-						} else {
-							ExtentCucumberAdapter.addTestStepLog(item + " No! it is not present in alognomy url");
-							flag = false;
-						}
-						String[] reqStrings = responseBody.split("\\?");
-						String reqString = "";
-						for (String key : reqStrings) {
-							if (key.contains(item)) {
-								reqString = key;
-								break;
-							}
-						}
-						String[] reqStrings1 = reqString.split(",");
-						String[] reqString2 = reqStrings1[0].split("&");
-						for (String key : reqString2) {
-							if (key.contains(item)) {
-								log.info("The value is ### " + key);
-								ExtentCucumberAdapter.addTestStepLog("The value is ### " + key);
-								break;
-							}
+				for (String item : list) {
+					if (responseBody.contains(item)) {
+						System.out.println("Yes! " + item + " it is present in the algonomy url");
+						ExtentCucumberAdapter.addTestStepLog("Yes! " + item + " it is present in the algonomy url");
+					} else {
+						System.out.println(item + " No! it is not present in alognomy url");
+						ExtentCucumberAdapter.addTestStepLog(item + " No! it is not present in alognomy url");
+						Flag = false;
+					}
+					String[] reqStrings = responseBody.split("\\?");
+					String reqString = "";
+					for (String key : reqStrings) {
+						if (key.contains(item)) {
+							reqString = key;
+							break;
 						}
 					}
-				} else {
+					String[] reqStrings1 = reqString.split(",");
+					String[] reqString2 = reqStrings1[0].split("&");
+					for (String key : reqString2) {
+						if (key.contains(item)) {
+							System.out.println("The value is ### " + key);
+							ExtentCucumberAdapter.addTestStepLog("The value is ### " + key);
+							break;
+						}
+					}
+				}
+			}
+				else {
 					for (String item : list) {
 						if (responseBody.contains(item)) {
+							System.out.println("Yes! " + item + " it is present in the algonomy url");
 							ExtentCucumberAdapter.addTestStepLog("Yes! " + item + " it is present in the algonomy url");
 						} else {
+							System.out.println(item + " No! it is not present in alognomy url");
 							ExtentCucumberAdapter.addTestStepLog(item + " No! it is not present in alognomy url");
-							flag = false;
+							Flag = false;
 						}
 						String[] reqStrings = responseBody.split("\\?");
 						String reqString = "";
@@ -574,6 +697,7 @@ public class WebBrowser {
 						String[] reqString2 = reqStrings1[0].split("&");
 						for (String key : reqString2) {
 							if (key.contains(item)) {
+								System.out.println("The value is ### " + key);
 								ExtentCucumberAdapter.addTestStepLog("The value is ### " + key);
 								break;
 							}
@@ -584,12 +708,11 @@ public class WebBrowser {
 		} else {
 			throw new CustomException("Response body is empty");
 		}
-		return flag;
+		return Flag;
 	}
-
 	public static boolean isWindows() {
-		String os = System.getProperty("os.name").toLowerCase();
-		return os.contains("win");
+		String OS = System.getProperty("os.name").toLowerCase();
+		return OS.contains("win");
 	}
 
 }

@@ -1,98 +1,154 @@
 package common;
 
-import java.util.*;
-import java.io.*;
 import java.awt.Rectangle;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.Collator;
 import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.util.List;
+import java.util.Locale;
+import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.awt.AWTException;
 import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.stream.Collectors;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.OutputType;
 import org.apache.pdfbox.io.RandomAccessBufferedFileInputStream;
+import org.apache.pdfbox.io.RandomAccessRead;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.text.PDFTextStripper;
 import java.net.URL;
 import java.util.stream.IntStream;
+
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
-import org.json.JSONArray;
-import org.json.JSONException;
+
 import org.openqa.selenium.NoSuchWindowException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+//import org.codehaus.plexus.util.FileUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.By.ByXPath;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.UnhandledAlertException;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+//import com.cucumber.listener.Reporter;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
+
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.log4j.Logger;
+import java.io.FileFilter;
+
 import io.cucumber.java.Scenario;
+import io.restassured.RestAssured;
+import io.restassured.http.Headers;
+import io.restassured.http.Method;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
+import io.cucumber.java.*;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.openqa.selenium.Dimension;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class WebBrowserUtil {
 	static WebDriver driver;
 	static String path = System.getProperty("user.dir");
-	static int timeInterval = Integer.parseInt(
-			CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
-					"TimeIntervalInMilliSecondsToWaitForPage"));
-	static int maxDelay = Integer.parseInt(
-			CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
-					"MaximumTimeInMilliSecondsToWaitForPage"));
-	static int controlLoadTimeout = Integer.parseInt(
-			CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
-					"MaximumTimeInSecondsToWaitForControl"));
+	static int timeInterval = Integer.parseInt(CommonUtil.GetXMLData(
+			Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+			"TimeIntervalInMilliSecondsToWaitForPage"));
+	static int maxDelay = Integer.parseInt(CommonUtil.GetXMLData(
+			Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+			"MaximumTimeInMilliSecondsToWaitForPage"));
+	static int controlLoadTimeout = Integer.parseInt(CommonUtil.GetXMLData(
+			Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+			"MaximumTimeInSecondsToWaitForControl"));
 	static Scenario sce;
 	public static String ScrenshotForSucess = "FALSE";
-	static final Logger log = Logger.getLogger(WebBrowserUtil.class);
 
 	public static void turnOffImplicitWaits() {
+		// driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
 	}
 
 	public static void turnOnImplicitWaits() {
-		String pageLoadTimeout = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+		String PageLoadTimeout = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 				"MaximumTimeInSecondsToWaitForControl");
-		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Integer.parseInt(pageLoadTimeout)));
+		// driver.manage().timeouts().implicitlyWait(Integer.parseInt(PageLoadTimeout),
+		// TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(Integer.parseInt(PageLoadTimeout)));
 	}
 
 	public static boolean IsElementPresent(String message) {
@@ -131,6 +187,11 @@ public class WebBrowserUtil {
 		return value;
 	}
 
+	/// <summary>
+	/// To verify URL
+	/// </summary>
+	/// <param name="url">The URL</param>
+	/// <returns>Verification result</returns>
 	public static boolean VerifyURL(String url) {
 		boolean isVerified = false;
 		try {
@@ -150,7 +211,6 @@ public class WebBrowserUtil {
 				}
 			}
 		} catch (Exception ex) {
-			log.error(ex.getMessage());
 		}
 		return isVerified;
 	}
@@ -161,9 +221,9 @@ public class WebBrowserUtil {
 			try {
 				i++;
 				Click(element);
+				// browser.Wait();
 				break;
 			} catch (Exception ex) {
-				log.error(ex.getMessage());
 			}
 		}
 	}
@@ -184,7 +244,7 @@ public class WebBrowserUtil {
 	public static void ScrollAndEnterText(WebElement element, String text) {
 		Scroll(element);
 		try {
-			Thread.sleep(1000);
+			element.click();
 			element.clear();
 			element.sendKeys(text);
 			for (int i = 0; i < 1; i++) {
@@ -195,7 +255,6 @@ public class WebBrowserUtil {
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
-						log.error(e.getMessage());
 					}
 					element.sendKeys(text);
 				}
@@ -231,7 +290,8 @@ public class WebBrowserUtil {
 					try {
 						Thread.sleep(2000);
 					} catch (Exception e1) {
-						log.error(e1.getMessage());
+						// TODO Auto-generated catch block
+						// e1.printStackTrace();
 					}
 					i++;
 					if (i == 4) {
@@ -302,13 +362,11 @@ public class WebBrowserUtil {
 						try {
 							Thread.sleep(500);
 						} catch (InterruptedException e) {
-							log.error(e.getMessage());
 
 						}
 						element.sendKeys(text);
 					}
 				} catch (Exception ex) {
-					log.error(ex.getMessage());
 				}
 			}
 		} catch (Exception ex) {
@@ -323,6 +381,8 @@ public class WebBrowserUtil {
 		if (verificationType.toUpperCase().equals("Disabled".toUpperCase())) {
 			disabled = true;
 		}
+		// System.out.println("eleList size--------------"+eleList.size());
+		// String text= "Brand Logo,Brand Name,Business Logo,Customer Apartment Number";
 		String[] textSplit = text.split(",");
 		boolean breakLoop = false;
 		int textSplitCount = 0;
@@ -330,6 +390,9 @@ public class WebBrowserUtil {
 		for (int k = 0; k < eleList.size(); k++) {
 			String eleText = eleList.get(k).getText();
 			for (int j = textSplitCount; j < textSplit.length; j++) {
+
+				// System.out.println("ele text-------------"+eleText+" textSplit.length :
+				// "+textSplit[j]+" j value : "+j+" textSplitCount : "+textSplitCount);
 				if (textSplitCount == textSplit.length - 1) {
 					breakLoop = true;
 				}
@@ -337,9 +400,11 @@ public class WebBrowserUtil {
 					verficationStarted = true;
 					textSplitCount++;
 					String classname = eleList.get(k).getAttribute("class");
+					// System.out.println("ele class name---------------"+classname);
 					ExtentCucumberAdapter
 							.addTestStepLog("Element text : " + eleText + " , Element Class : " + classname);
 					if (classname.contains("disabled")) {
+						// System.out.println("element is disabled");
 						if (disabled) {
 							isVerified = true;
 							break;
@@ -349,6 +414,7 @@ public class WebBrowserUtil {
 						}
 
 					} else {
+						// System.out.println("element is enabled");
 						if (disabled) {
 							isVerified = false;
 							break;
@@ -363,31 +429,39 @@ public class WebBrowserUtil {
 			if (breakLoop) {
 				break;
 			}
-			if (verficationStarted && !isVerified) {
-				if (disabled) {
-					ExtentCucumberAdapter.addTestStepLog(eleText + " is enabled, Expected to be disabled");
-					break;
-				} else {
-					ExtentCucumberAdapter.addTestStepLog(eleText + " is disabled, Expected to be enabled");
-					break;
+			if (verficationStarted) {
+				if (isVerified == false) {
+					if (disabled) {
+						// System.out.println(eleList.get(k).getText()+" is enabled, Expected to be
+						// disabled");
+						ExtentCucumberAdapter.addTestStepLog(eleText + " is enabled, Expected to be disabled");
+						break;
+					} else {
+						// System.out.println(eleList.get(k).getText()+" is disabled, Expected to be
+						// enabled");
+						ExtentCucumberAdapter.addTestStepLog(eleText + " is disabled, Expected to be enabled");
+						break;
+					}
 				}
 			}
 
 		}
+		// System.out.println("isVerified---------------------"+isVerified);
 		return isVerified;
 
 	}
 
 	public static void takeScrenshot(Scenario scenario) {
-		String fullScreenshot = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(), "EnableFullScreenshot");
+		String FullScreenshot = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+				"EnableFullScreenshot");
 
-		String desktopFullScreenshot = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+		String DesktopFullScreenshot = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 				"EnableDesktopFullScreenshot");
 
 		driver = WebBrowser.getBrowser();
-		if (desktopFullScreenshot.equalsIgnoreCase("true")) {
+		if (DesktopFullScreenshot.equalsIgnoreCase("true")) {
 			try {
 				// Capture full desktop screenshot using Robot class
 				Robot robot = new Robot();
@@ -395,8 +469,8 @@ public class WebBrowserUtil {
 				BufferedImage screenFullImage = robot.createScreenCapture(screenRect);
 
 				// Save the full screenshot locally
-				String fullScreenshotPath = Paths.get(path, "src", "test", "java", "desktop_full_screenshot.png")
-						.toString();
+				String fullScreenshotPath = Paths
+						.get(path.toString(), "src", "test", "java", "desktop_full_screenshot.png").toString();
 				File fullScreenshotFile = new File(fullScreenshotPath);
 				ImageIO.write(screenFullImage, "png", fullScreenshotFile);
 
@@ -410,7 +484,7 @@ public class WebBrowserUtil {
 				scenario.log("Failed to capture full desktop screenshot: " + e.getMessage());
 			}
 		}
-		if (fullScreenshot.toLowerCase().equals("true")) {
+		if (FullScreenshot.toLowerCase().equals("true")) {
 			try {
 				JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
 				Long height = (Long) jsExecutor.executeScript(
@@ -434,13 +508,13 @@ public class WebBrowserUtil {
 					}
 
 					File screenshotBase64 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-					String pathh = Paths.get(path, "src", "test", "java", "image_" + i + ".png").toString();
+					String pathh = Paths.get(path.toString(), "src", "test", "java", "image_" + i + ".png").toString();
 					File destFile = new File(pathh);
 					FileUtils.copyFile(screenshotBase64, destFile);
 					actions.sendKeys(Keys.PAGE_DOWN).perform();
 				}
 
-				String pathhh = Paths.get(path, "src", "test", "java").toString();
+				String pathhh = Paths.get(path.toString(), "src", "test", "java").toString();
 				File dir = new File(pathhh);
 				FileFilter fileFilter = new WildcardFileFilter("image_*.png");
 				File[] files = dir.listFiles(fileFilter);
@@ -499,7 +573,7 @@ public class WebBrowserUtil {
 					jpegWriter.dispose();
 					if (withinRange) {
 						File compressedFile = new File(
-								Paths.get(path, "src", "test", "java", "compressed_image.jpg").toString());
+								Paths.get(path.toString(), "src", "test", "java", "compressed_image.jpg").toString());
 						try (FileOutputStream fos = new FileOutputStream(compressedFile)) {
 							fos.write(outputStream.toByteArray());
 						}
@@ -516,11 +590,13 @@ public class WebBrowserUtil {
 	}
 
 	public static void captureScreenshot() {
-		ScrenshotForSucess = CommonUtil.getXMLData(
-				Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
+		ScrenshotForSucess = CommonUtil.GetXMLData(
+				Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
 				"EnableScrenshotForSucess");
-		if ("true".equalsIgnoreCase(ScrenshotForSucess) && !Hooks.apiScenario) {
-			captureAndCompressScreenshot();
+		if (ScrenshotForSucess.toUpperCase().equals("TRUE")) {
+			if (!Hooks.apiScenario) {
+				captureAndCompressScreenshot();
+			}
 		}
 	}
 
@@ -528,7 +604,6 @@ public class WebBrowserUtil {
 		if (WebBrowser.boolEachstepScreenshot) {
 			driver = WebBrowser.getBrowser();
 			captureAndCompressScreenshot();
-			log.info(scenario);
 		}
 	}
 
@@ -586,9 +661,9 @@ public class WebBrowserUtil {
 
 	}
 
-	public static void SelectByIndex(WebElement dropDownList, int index) {
-		Select drpList = new Select(dropDownList);
-		if (dropDownList.isDisplayed()) {
+	public static void SelectByIndex(WebElement DropDownList, int index) {
+		Select drpList = new Select(DropDownList);
+		if (DropDownList.isDisplayed()) {
 			drpList.selectByIndex(index);
 		} else {
 
@@ -596,9 +671,9 @@ public class WebBrowserUtil {
 		}
 	}
 
-	public static void SelectByRandomIndex(WebElement dropDownList) {
-		Select drpList = new Select(dropDownList);
-		if (dropDownList.isDisplayed()) {
+	public static void SelectByRandomIndex(WebElement DropDownList) {
+		Select drpList = new Select(DropDownList);
+		if (DropDownList.isDisplayed()) {
 			int totalCount = drpList.getOptions().size();
 			Random random = new Random();
 			int randomNumber = random.nextInt(totalCount - 1);
@@ -609,9 +684,9 @@ public class WebBrowserUtil {
 		}
 	}
 
-	public static void SelectByLastIndex(WebElement dropDownList) {
-		Select drpList = new Select(dropDownList);
-		if (dropDownList.isDisplayed()) {
+	public static void SelectByLastIndex(WebElement DropDownList) {
+		Select drpList = new Select(DropDownList);
+		if (DropDownList.isDisplayed()) {
 			drpList.selectByIndex(drpList.getOptions().size() - 1);
 		} else {
 
@@ -619,9 +694,9 @@ public class WebBrowserUtil {
 		}
 	}
 
-	public static int GetListCount(WebElement dropDownList) {
-		Select drpList = new Select(dropDownList);
-		if (dropDownList.isDisplayed()) {
+	public static int GetListCount(WebElement DropDownList) {
+		Select drpList = new Select(DropDownList);
+		if (DropDownList.isDisplayed()) {
 			return drpList.getOptions().size();
 		} else {
 
@@ -629,9 +704,9 @@ public class WebBrowserUtil {
 		}
 	}
 
-	public static void SelectByFirstIndex(WebElement dropDownList) {
-		Select drpList = new Select(dropDownList);
-		if (dropDownList.isDisplayed()) {
+	public static void SelectByFirstIndex(WebElement DropDownList) {
+		Select drpList = new Select(DropDownList);
+		if (DropDownList.isDisplayed()) {
 			drpList.selectByIndex(1);
 		} else {
 
@@ -644,9 +719,9 @@ public class WebBrowserUtil {
 		driver.close();
 	}
 
-	public static void SelectByValue(WebElement dropDownList, String text) {
-		Select drpList = new Select(dropDownList);
-		if (dropDownList.isDisplayed()) {
+	public static void SelectByValue(WebElement DropDownList, String text) {
+		Select drpList = new Select(DropDownList);
+		if (DropDownList.isDisplayed()) {
 			drpList.selectByValue(text);
 		} else {
 
@@ -654,9 +729,9 @@ public class WebBrowserUtil {
 		}
 	}
 
-	public static String GetSelectedValue(WebElement dropDownList) {
-		Select drpList = new Select(dropDownList);
-		if (dropDownList.isDisplayed()) {
+	public static String GetSelectedValue(WebElement DropDownList) {
+		Select drpList = new Select(DropDownList);
+		if (DropDownList.isDisplayed()) {
 			return drpList.getFirstSelectedOption().getText();
 		} else {
 
@@ -664,11 +739,11 @@ public class WebBrowserUtil {
 		}
 	}
 
-	public static void ScrollAndSelectByText(WebElement dropDownList, String text) {
-		Scroll(dropDownList);
-		Select drpList = new Select(dropDownList);
+	public static void ScrollAndSelectByText(WebElement DropDownList, String text) throws InterruptedException {
+		Scroll(DropDownList);
+		Select drpList = new Select(DropDownList);
 
-		if (dropDownList.isDisplayed()) {
+		if (DropDownList.isDisplayed()) {
 			drpList.selectByVisibleText(text);
 		} else {
 
@@ -683,20 +758,25 @@ public class WebBrowserUtil {
 			String title = driver.getTitle();
 
 		} catch (UnhandledAlertException e) {
-			log.error(e.getMessage());
+			// driver.switchTo().alert().accept();
 		} catch (NoSuchWindowException ex) {
 			driver.switchTo().window((driver.getWindowHandles().toArray()[0]).toString());
 
 		}
 		try {
 
+			// Log.Info("page Title of Attached Page = " + pageTitle);
 			if (!driver.getTitle().toUpperCase().contains(pageTitle.toUpperCase())) {
 				driver.switchTo().defaultContent();
 				try {
-					WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2*timeInterval/1000));
+					// TimeSpan timeOut = new TimeSpan(0, 0, 0, 0, maxDelay);
+					// vish changed
+					// WebDriverWait wait = new WebDriverWait(driver, 3);
+					WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
 					wait.until(ExpectedConditions.numberOfWindowsToBe(2));
 				} catch (Exception ex) {
-					if (driver.getWindowHandles().size() <= 2) {
+					// Log.Error("Timeout Delay");
+					if (!(driver.getWindowHandles().size() > 2)) {
 						return driver;
 					}
 				}
@@ -704,16 +784,19 @@ public class WebBrowserUtil {
 				int index = maxDelay / timeInterval;
 				while (i < index) {
 					for (String winHandle : driver.getWindowHandles()) {
+						// driver.switchTo().window(winHandle);
 						try {
 							String title = pageTitle.replace("Page", "");
+							// int n;
 							boolean isNumeric = isStringInt(title);
+							// bool isNumeric = int.TryParse(title, out n);
 							if (isNumeric) {
 								int windowIndex = Integer.parseInt(title);
 								return driver.switchTo()
 										.window((driver.getWindowHandles().toArray()[windowIndex - 1]).toString());
 							}
 						} catch (Exception ex) {
-							log.error(ex.getMessage());
+
 						}
 
 						if (driver.switchTo().window(winHandle).getTitle().toUpperCase()
@@ -726,13 +809,18 @@ public class WebBrowserUtil {
 					Thread.sleep(timeInterval);
 				}
 			} else {
+				// Wait();
 				Thread.sleep(timeInterval);
 			}
 			return driver;
+			// throw new Exception("Not able to attach browser window with title :" +
+			// pageTitle);
 		} catch (UnhandledAlertException e) {
 			return driver;
 		} catch (Exception ex) {
 			return driver.switchTo().window((driver.getWindowHandles().toArray()[0]).toString());
+			// Log.Error("Error in Attach Page Method");
+			// throw;
 		}
 	}
 
@@ -740,14 +828,22 @@ public class WebBrowserUtil {
 		try {
 			driver = WebBrowser.getBrowser();
 			Thread.sleep(2 * timeInterval);
+
+			Actions actions = new Actions(driver);
+			// actions.MoveToElement(element).Perform();
+			// actions.MoveToElement(element).Click().Build().Perform();
 			Thread.sleep(timeInterval);
 			try {
 				element.click();
+				// Log.Info("Click Successful");
+
 			} catch (Exception ex) {
+				// Log.Info("Scroll and click Successful");
 				((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
 			}
 		} catch (Exception ex) {
 			Thread.sleep(2 * timeInterval);
+			// Log.Error("Scroll and click unsuccessful" + ex.Message);
 			throw new CustomException("Scroll and click unsuccessful" + ex.getMessage());
 		}
 	}
@@ -808,13 +904,15 @@ public class WebBrowserUtil {
 	}
 
 	public static boolean IsSorted(List<Integer> sortedList) {
-		return IntStream.range(1, sortedList.size())
-				.map(index -> sortedList.get(index - 1).compareTo(sortedList.get(index))).allMatch(order -> order >= 0);
+		boolean isSorted = IntStream.range(1, sortedList.size())
+				.map(index -> sortedList.get(index - 1).compareTo(sortedList.get(index))).allMatch(order -> order <= 0);
+		return isSorted;
 	}
 
 	public static boolean IsReverseSorted(List<Integer> sortedList) {
-		return IntStream.range(1, sortedList.size())
+		boolean isSorted = IntStream.range(1, sortedList.size())
 				.map(index -> sortedList.get(index - 1).compareTo(sortedList.get(index))).allMatch(order -> order >= 0);
+		return isSorted;
 	}
 
 	public static String Text(WebElement element) {
@@ -823,8 +921,8 @@ public class WebBrowserUtil {
 
 	}
 
-	public static boolean Checked(WebElement checkBox) {
-		return checkBox.isSelected();
+	public static boolean Checked(WebElement _checkBox) {
+		return _checkBox.isSelected();
 	}
 
 	public static void SelectByText(WebElement element, String value) {
@@ -908,7 +1006,7 @@ public class WebBrowserUtil {
 				try {
 					Thread.sleep(timeInterval);
 				} catch (InterruptedException e1) {
-					log.error(e1.getMessage());
+
 				}
 			}
 		}
@@ -929,7 +1027,7 @@ public class WebBrowserUtil {
 				try {
 					Thread.sleep(timeInterval);
 				} catch (InterruptedException e1) {
-					log.error(e1.getMessage());
+
 				}
 			}
 		}
@@ -943,7 +1041,6 @@ public class WebBrowserUtil {
 				Thread.sleep(timeInterval);
 				Alert alert = driver.switchTo().alert();
 				alert.sendKeys(text);
-				alert.accept();
 				i++;
 				break;
 			} catch (Exception e) {
@@ -951,7 +1048,7 @@ public class WebBrowserUtil {
 				try {
 					Thread.sleep(timeInterval);
 				} catch (InterruptedException e1) {
-					log.error(e1.getMessage());
+
 				}
 			}
 		}
@@ -967,16 +1064,14 @@ public class WebBrowserUtil {
 				Alert alert = driver.switchTo().alert();
 				isVerified = alert.getText().contains(text);
 				// alert.accept();
-				driver.switchTo().defaultContent();
 				i++;
 				break;
 			} catch (Exception e) {
 				i++;
-				driver.switchTo().defaultContent();
 				try {
 					Thread.sleep(timeInterval);
 				} catch (InterruptedException e1) {
-					log.error(e1.getMessage());
+
 				}
 			}
 		}
@@ -984,14 +1079,19 @@ public class WebBrowserUtil {
 
 	}
 
-	public static void Check(WebElement element) {
+	public static void Check(WebElement element) throws InterruptedException {
+		// Log.Info("Check is Successful");
 		if (!Checked(element)) {
+			// Log.Info("Check is Successful");
 			Click(element);
 		}
 	}
 
-	public static void UnCheck(WebElement element) {
+	public static void UnCheck(WebElement element) throws InterruptedException {
+		// Log.Info("Uncheck is Successful");
 		if (Checked(element)) {
+			// Log.Info("Uncheck is Successful");
+			// element.click();
 			Click(element);
 		}
 	}
@@ -1129,7 +1229,6 @@ public class WebBrowserUtil {
 						ScrollAndClickUsingJS(element);
 						staleElement = false;
 					} catch (Exception exc) {
-						log.error(exc.getMessage());
 					}
 					if (i == 4) {
 						throw new CustomException(ex.getMessage(), ex);
@@ -1151,17 +1250,22 @@ public class WebBrowserUtil {
 			Thread.sleep(timeInterval);
 
 		} catch (Exception ex) {
+			/*
+			 * try { Thread.sleep(2 * timeInterval); } catch (InterruptedException e) {
+			 * 
+			 * }
+			 */
 			throw new CustomException("Scroll and click unsuccessful" + ex.getMessage());
 		}
 	}
 
-	public static int GetColumnIndex(WebElement table, String colName) {
+	public static int GetColumnIndex(WebElement _table, String colName) {
 		Collection<WebElement> rows = null;
 		Collection<WebElement> cells = null;
 		try {
 
-			if (table.isDisplayed()) {
-				rows = table.findElements(By.tagName("tr"));
+			if (_table.isDisplayed()) {
+				rows = _table.findElements(By.tagName("tr"));
 				for (WebElement row : rows) {
 					if (!row.getText().isEmpty()) {
 						cells = row.findElements(By.xpath("td"));
@@ -1170,10 +1274,11 @@ public class WebBrowserUtil {
 						}
 						int columnNumber = 0;
 						for (WebElement cell : cells) {
-							if (cell.getText() != null && !cell.getText().isEmpty()
-									&& cell.getText().toUpperCase().contains(colName.toUpperCase().trim())) {
-								cells = null;
-								return columnNumber;
+							if (cell.getText() != null && !cell.getText().isEmpty()) {
+								if (cell.getText().toUpperCase().contains(colName.toUpperCase().trim())) {
+									cells = null;
+									return columnNumber;
+								}
 							}
 							columnNumber++;
 						}
@@ -1182,6 +1287,7 @@ public class WebBrowserUtil {
 
 				throw new CustomException("Table column with text '" + colName + "' does not exists");
 			} else {
+
 				throw new CustomException("Table does not exists");
 			}
 		} catch (Exception ex) {
@@ -1189,7 +1295,8 @@ public class WebBrowserUtil {
 			try {
 				throw ex;
 			} catch (Exception e) {
-				log.error(e.getMessage());
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
 			}
 			return 0;
 		}
@@ -1230,9 +1337,8 @@ public class WebBrowserUtil {
 	public static void ScrollAndClearEnterText(WebElement element, String text) throws InterruptedException {
 		Scroll(element);
 		try {
-			// element.click();
+			element.click();
 			element.clear();
-			Thread.sleep(1000);
 			element.sendKeys(text);
 			for (int i = 0; i < 1; i++) {
 				if (element.getAttribute("value").equals(text)) {
@@ -1242,7 +1348,6 @@ public class WebBrowserUtil {
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
-						log.error(e.getMessage());
 					}
 					element.sendKeys(text);
 				}
@@ -1267,18 +1372,21 @@ public class WebBrowserUtil {
 		try {
 			Thread.sleep(timeInterval);
 		} catch (InterruptedException e) {
-			log.error(e.getMessage());
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
 		}
 		((JavascriptExecutor) driver).executeScript("window.scrollTo(0, 1500)");
 		try {
 			Thread.sleep(3 * timeInterval);
 		} catch (InterruptedException e) {
-			log.error(e.getMessage());
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
 		}
 	}
 
 	public static void DragAndDropHorizontally(WebElement sourceElement, int distance) {
 		try {
+			// Point startLocation = sourceElement.getLocation();
 			driver = WebBrowser.getBrowser();
 			// create object 'action' of Actions class
 			Actions action = new Actions(driver);
@@ -1287,12 +1395,15 @@ public class WebBrowserUtil {
 			Thread.sleep(2 * timeInterval);
 
 		} catch (Exception ex) {
+
+			// Thread.Sleep(2 * timeInterval);
 			throw new CustomException("Drag And Drop Horizontally unsuccessful" + ex.getMessage());
 		}
 	}
 
 	public static void DragAndDropHorizontally(WebElement sourceElement, WebElement targetElement) {
 		try {
+			// Point startLocation = sourceElement.getLocation();
 			driver = WebBrowser.getBrowser();
 			// create object 'action' of Actions class
 			Actions action = new Actions(driver);
@@ -1307,6 +1418,7 @@ public class WebBrowserUtil {
 
 	public static void ClickAndHoldAndRelease(WebElement sourceElement, WebElement targetElement) {
 		try {
+			// Point startLocation = sourceElement.getLocation();
 			driver = WebBrowser.getBrowser();
 			// create object 'action' of Actions class
 			Actions action = new Actions(driver);
@@ -1333,7 +1445,6 @@ public class WebBrowserUtil {
 								.perform();
 						Thread.sleep(3 * timeInterval);
 					} catch (Exception e) {
-						log.error(e.getMessage());
 					}
 				}
 			}
@@ -1348,7 +1459,6 @@ public class WebBrowserUtil {
 						actions.moveToElement(driver.findElement(By.tagName("body"))).sendKeys(Keys.PAGE_UP).perform();
 						Thread.sleep(3 * timeInterval);
 					} catch (Exception e) {
-						log.error(e.getMessage());
 					}
 				}
 			}
@@ -1364,7 +1474,6 @@ public class WebBrowserUtil {
 								.perform();
 						Thread.sleep(3 * timeInterval);
 					} catch (Exception e) {
-						log.error(e.getMessage());
 					}
 				}
 			}
@@ -1394,7 +1503,6 @@ public class WebBrowserUtil {
 					}
 					Thread.sleep(3 * timeInterval);
 				} catch (Exception e) {
-					log.error(e.getMessage());
 				}
 			}
 		}
@@ -1454,6 +1562,8 @@ public class WebBrowserUtil {
 				Thread.sleep(2 * timeInterval);
 				System.out.println(" Scrolling " + i + " time(s)");
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
 				throw new CustomException(e.getMessage());
 			}
 
@@ -1475,6 +1585,8 @@ public class WebBrowserUtil {
 				lastHeight = (long) ((JavascriptExecutor) driver).executeScript("return document.body.scrollHeight");
 
 				System.out.println(" Last hight " + lastHeight);
+				// ((JavascriptExecutor) driver).executeScript("window.scrollTo(0,
+				// document.body.scrollHeight);");
 				if (endHeight <= lastHeight) {
 					System.out.println("Scroll start value " + startHeight + " and end value " + endHeight);
 					String cmd = scrollCommand.replace("startHeight", String.valueOf(startHeight)).replace("endHeight",
@@ -1500,7 +1612,7 @@ public class WebBrowserUtil {
 				lastHeight = newHeight;
 			}
 		} catch (Exception e) {
-			log.error(e.getMessage() + numberOfTimes);
+			e.printStackTrace();
 		}
 
 	}
@@ -1516,16 +1628,20 @@ public class WebBrowserUtil {
 
 	}
 
-	public static void Click(WebElement element) {
+	public static void Click(WebElement element) throws InterruptedException {
 		try {
 			driver = WebBrowser.getBrowser();
 
 			try {
 				element.click();
+				// Log.Info("Click Successful");
+
 			} catch (Exception ex) {
+				// Log.Info("Scroll and click Successful");
 				((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
 			}
 		} catch (Exception ex) {
+
 			throw new CustomException("Click unsuccessful" + ex.getMessage());
 		}
 	}
@@ -1534,11 +1650,15 @@ public class WebBrowserUtil {
 		driver = WebBrowser.getBrowser();
 		Actions actions = new Actions(driver);
 		try {
+			// actions.moveToElement(element).perform();
 			if (element != null) {
 
 				if (element.isDisplayed()) {
 					WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 					wait.until(ExpectedConditions.elementToBeClickable(element));
+					// ((JavascriptExecutor)
+					// driver).executeScript("arguments[0].scrollIntoView(true);", element);
+					// element = driver.findElement(By.xpath(element.getAttribute("xpath")));
 					((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
 				} else {
 					System.out.println("In first else");
@@ -1547,7 +1667,6 @@ public class WebBrowserUtil {
 				}
 			} else {
 				System.out.println("Element is not present!!!");
-				throw new CustomException("Element is not present!!!");
 			}
 		} catch (Exception ex) {
 			throw new CustomException("Scroll and click unsuccessful" + ex.getMessage());
@@ -1565,8 +1684,10 @@ public class WebBrowserUtil {
 					Actions actions = new Actions(driver);
 					actions.moveToElement(element).perform();
 					((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
+					// Log.Info("Scroll and click Successful");
 					staleElement = false;
 				} catch (Exception e) {
+					// Log.Info("Click Successful");
 					i++;
 					if (i == 3) {
 						throw new CustomException("Scroll and click unsuccessful" + e.getMessage());
@@ -1591,7 +1712,6 @@ public class WebBrowserUtil {
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
-						log.error(e.getMessage());
 					}
 					element.sendKeys(text);
 				}
@@ -1610,12 +1730,15 @@ public class WebBrowserUtil {
 			r.keyPress(KeyEvent.VK_T);
 			r.keyRelease(KeyEvent.VK_CONTROL);
 			r.keyRelease(KeyEvent.VK_T);
+			// ((JavascriptExecutor)driver).executeScript("window.open();");
 			Thread.sleep(4 * timeInterval);
 			driver.switchTo().window(
 					driver.getWindowHandles().toArray()[driver.getWindowHandles().toArray().length - 1].toString());
 			driver.navigate().to(url);
 			Thread.sleep(2 * timeInterval);
+			// Log.Info("New tab opened with URL: " + url);
 		} catch (Exception ex) {
+			// Log.Error("Error while opening new tab " + ex);
 			throw new CustomException(ex.getMessage());
 		}
 	}
@@ -1626,10 +1749,13 @@ public class WebBrowserUtil {
 			int i = 0;
 			while (i < maxDelay / timeInterval) {
 				try {
+					// driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
 					driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
 					Thread.sleep(timeInterval);
 					WebElement element = driver.findElement(By.xpath(xPath));
 					if (element == null) {
+						// driver.manage().timeouts().implicitlyWait(controlLoadTimeout,
+						// TimeUnit.SECONDS);
 						driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(controlLoadTimeout));
 						break;
 					}
@@ -1637,11 +1763,16 @@ public class WebBrowserUtil {
 				} catch (Exception e) {
 					i++;
 					Thread.sleep(timeInterval);
+					// driver.manage().timeouts().implicitlyWait(controlLoadTimeout,
+					// TimeUnit.SECONDS);
 					driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(controlLoadTimeout));
 					break;
 				}
 			}
+			// new WebDriverWait(driver,
+			// controlLoadTimeout).until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(xPath)));
 		} catch (Exception ex) {
+			// Log.Error("Error while opening new tab " + ex);
 			throw new CustomException(ex.getMessage());
 		}
 	}
@@ -1652,10 +1783,13 @@ public class WebBrowserUtil {
 			int i = 0;
 			while (i < maxDelay / timeInterval) {
 				try {
+					// driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
 					driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
 					Thread.sleep(timeInterval);
 					WebElement element = driver.findElement(By.xpath(xPath));
 					if (element != null) {
+						// driver.manage().timeouts().implicitlyWait(controlLoadTimeout,
+						// TimeUnit.SECONDS);
 						driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(controlLoadTimeout));
 						break;
 					}
@@ -1663,11 +1797,16 @@ public class WebBrowserUtil {
 				} catch (Exception e) {
 					i++;
 					Thread.sleep(timeInterval);
+					// driver.manage().timeouts().implicitlyWait(controlLoadTimeout,
+					// TimeUnit.SECONDS);
 					driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(controlLoadTimeout));
 					break;
 				}
 			}
+			// new WebDriverWait(driver,
+			// controlLoadTimeout).until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(xPath)));
 		} catch (Exception ex) {
+			// Log.Error("Error while opening new tab " + ex);
 			throw new CustomException(ex.getMessage());
 		}
 	}
@@ -1691,6 +1830,7 @@ public class WebBrowserUtil {
 			robot.delay(50);
 			robot.keyRelease(KeyEvent.VK_ENTER);
 		} catch (Exception ex) {
+			// Log.Error("Error while opening new tab " + ex);
 			throw new CustomException(ex.getMessage());
 		}
 	}
@@ -1749,9 +1889,12 @@ public class WebBrowserUtil {
 						Click(list.get(0));
 						driver.switchTo().defaultContent();
 						return;
+					} catch (InterruptedException e) {
+						driver.switchTo().defaultContent();
 					} catch (Exception e) {
 						driver.switchTo().defaultContent();
 					}
+
 				}
 				driver.switchTo().defaultContent();
 			}
@@ -1760,7 +1903,7 @@ public class WebBrowserUtil {
 			try {
 				Click(getElementByXpath(xpath).get(0));
 			} catch (Exception e) {
-				log.error(e.getMessage());
+
 			}
 		}
 	}
@@ -1774,7 +1917,23 @@ public class WebBrowserUtil {
 	}
 
 	public static boolean validateDateFormat(String date, String format) {
-
+		/*
+		 * String regex =
+		 * "^(?:(?:31(\\/|-|\\.| )(?:0?[13578]|1[02]|(?:Jan|Mar|May|Jul|Aug|Oct|Dec)))\\1|(?:(?:29|30)(\\/|-|\\.| )(?:0?[1,3-9]|1[0-2]|(?:Jan|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/|-|\\.| )(?:0?2|(?:Feb))\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.| )(?:(?:0?[1-9]|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep))|(?:1[0-2]|(?:Oct|Nov|Dec)))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$"
+		 * ; String regex1 =
+		 * "^(?:(?:31(\\/|-|\\.| )(?:0?[13578]|1[02]|(?:Jan|Mar|May|Jul|Aug|Oct|Dec)))\\1|(?:(?:29|30)(\\/|-|\\.| )(?:0?[1,3-9]|1[0-2]|(?:Jan|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/|-|\\.| )(?:0?2|(?:Feb))\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.| )(?:(?:0?[1-9]|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep))|(?:1[0-2]|(?:Oct|Nov|Dec)))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2}) \\d{1,2}:\\d{1,2}:\\d{1,2}$"
+		 * ; String regex2 =
+		 * "^(?:(?:31(\\/|-|\\.| )(?:0?[13578]|1[02]|(?:Jan|Mar|May|Jul|Aug|Oct|Dec)))\\1|(?:(?:29|30)(\\/|-|\\.| )(?:0?[1,3-9]|1[0-2]|(?:Jan|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/|-|\\.| )(?:0?2|(?:Feb))\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.| )(?:(?:0?[1-9]|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep))|(?:1[0-2]|(?:Oct|Nov|Dec)))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2}) \\d{1,2}:\\d{1,2}$"
+		 * ; // String regex="^\\d{1,2}\\/\\d{1,2}\\/\\d{4} \\d{1,2}:\\d{1,2}:\\d{1,2}";
+		 * Pattern pattern = Pattern.compile(regex); Pattern pattern1 =
+		 * Pattern.compile(regex1); Pattern pattern2 = Pattern.compile(regex2);
+		 * 
+		 * Matcher matcher = pattern.matcher((CharSequence)date); Matcher matcher1 =
+		 * pattern1.matcher((CharSequence)date); Matcher matcher2 =
+		 * pattern2.matcher((CharSequence)date); if( matcher.matches() ||
+		 * matcher1.matches() || matcher2.matches()) { return true; } else { return
+		 * false; }
+		 */
 		List<String> formatStrings = Arrays.asList(format);
 		for (String formatString : formatStrings) {
 			try {
@@ -1796,13 +1955,14 @@ public class WebBrowserUtil {
 			String printData = "";
 			for (int i = 0; i < links.size(); i++) {
 				String eleText = WebBrowserUtil.GetText(links.get(i));
-				if (eleText != null && !eleText.isEmpty()) {
-					if (!WebBrowserUtil.validateDateFormat(eleText, splitText[1])) {
-						ExtentCucumberAdapter.addTestStepLog(eleText + " is not correct date format");
-						return false;
-					}
+				if (eleText == "" || eleText == null || eleText.isEmpty()) {
+					printData = printData + eleText + ",";
+					result = true;
+				} else if (WebBrowserUtil.validateDateFormat(eleText, splitText[1]) == false) {
+					ExtentCucumberAdapter.addTestStepLog(eleText + " is not correct date format");
+					return false;
 				} else {
-					printData += eleText + ",";
+					printData = printData + eleText + ",";
 					result = true;
 				}
 
@@ -1834,20 +1994,20 @@ public class WebBrowserUtil {
 		try {
 
 			File file = new File(excelFilePath);
-			FileInputStream inputdocument = new FileInputStream(file);
+			FileInputStream input_document = new FileInputStream(file);
 			// convert it into a POI object
-			XSSFWorkbook myxlsxworkbook = new XSSFWorkbook(inputdocument);
+			XSSFWorkbook my_xlsx_workbook = new XSSFWorkbook(input_document);
 			// Read excel sheet that needs to be updated
-			XSSFSheet myworksheet = myxlsxworkbook.getSheetAt(0);
+			XSSFSheet my_worksheet = my_xlsx_workbook.getSheetAt(0);
 			if (path.contains("enter-row")) {
 				int lastRowIndex = 0;
 				int lastCellIndex = 0;
-				if (myworksheet.getPhysicalNumberOfRows() > 0) {
+				if (my_worksheet.getPhysicalNumberOfRows() > 0) {
 
-					lastRowIndex = myworksheet.getLastRowNum();
+					lastRowIndex = my_worksheet.getLastRowNum();
 					// Object [] objArr = new Object[] {};
 					List<String> lastRowData = new ArrayList<>();
-					Row row = myworksheet.getRow(lastRowIndex);
+					Row row = my_worksheet.getRow(lastRowIndex);
 					int colNum = row.getLastCellNum();
 					System.out.println("total cell : " + colNum);
 					for (int j = 0; j < colNum; j++) {
@@ -1868,9 +2028,9 @@ public class WebBrowserUtil {
 						}
 
 					}
-					inputdocument.close();
+					input_document.close();
 
-					Row rowNew = myworksheet.createRow(lastRowIndex++);
+					Row rowNew = my_worksheet.createRow(lastRowIndex++);
 					int cellnum = 0;
 					for (String c : lastRowData) {
 						Cell cell = rowNew.createCell(cellnum++);
@@ -1881,14 +2041,14 @@ public class WebBrowserUtil {
 			} else if (path.contains("update-cell")) {
 				String[][] excelData = null;
 
-				int rows = myworksheet.getPhysicalNumberOfRows();
+				int rows = my_worksheet.getPhysicalNumberOfRows();
 
 				// get number of cell from row
-				int cells = myworksheet.getRow(0).getPhysicalNumberOfCells();
+				int cells = my_worksheet.getRow(0).getPhysicalNumberOfCells();
 
 				excelData = new String[rows][cells];
 				for (int p = 0; p < rows; p++) {
-					Row row2 = myworksheet.getRow(p);
+					Row row2 = my_worksheet.getRow(p);
 					for (int n = 0; n < cells; n++) {
 
 						Cell cell = row2.getCell(n);
@@ -1901,15 +2061,18 @@ public class WebBrowserUtil {
 				}
 				int rowCount = 0;
 				for (int l = 0; l < excelData.length; l++) {
-					if (excelData[l][0] != null && excelData[l][0].contains(splitText[2])) {
-						rowCount = l;
-						break;
+					if (excelData[l][0] != null) {
+						if (excelData[l][0].contains(splitText[2])) {
+							rowCount = l;
+							break;
+						}
 					}
+
 				}
-				inputdocument.close();
-				Cell cellEdit = myworksheet.getRow(rowCount).getCell(Integer.parseInt(splitText[3]));
+				input_document.close();
+				Cell cellEdit = my_worksheet.getRow(rowCount).getCell(Integer.parseInt(splitText[3]));
 				if (cellEdit == null) {
-					Row rowNew = myworksheet.getRow(rowCount);
+					Row rowNew = my_worksheet.getRow(rowCount);
 					cellEdit = rowNew.createCell(Integer.parseInt(splitText[3]));
 				}
 				cellEdit.setCellValue(splitText[4]);
@@ -1918,13 +2081,13 @@ public class WebBrowserUtil {
 				FileOutputStream fileOut = new FileOutputStream(file);
 
 				// write this workbook to an Outputstream.
-				if (myxlsxworkbook != null)
-					myxlsxworkbook.write(fileOut);
+				if (my_xlsx_workbook != null)
+					my_xlsx_workbook.write(fileOut);
 				fileOut.flush();
 				fileOut.close();
 			}
-			if (myxlsxworkbook != null)
-				myxlsxworkbook.close();
+			if (my_xlsx_workbook != null)
+				my_xlsx_workbook.close();
 
 		} catch (Exception e) {
 			throw new CustomException(e.getMessage(), e);
@@ -1960,6 +2123,7 @@ public class WebBrowserUtil {
 								cell = sheetRow.createCell(col);
 							}
 							cell.setCellValue(cellValue);
+//	                              sheet.getRow(row).getCell(col).setCellValue(cellValue);
 						}
 					}
 					fis.close();
@@ -2016,6 +2180,8 @@ public class WebBrowserUtil {
 			String[] splitKey = splitedText[1].split("\\.");
 			JSONParser jsonParser = new JSONParser();
 			JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(splitedText[0]));
+			// String value = (String) jsonObject.get("Items");
+
 			JSONArray jsonArray = (JSONArray) jsonObject.get(splitKey[0]);
 			String value = jsonArray.get(0).toString();
 			HashMap<String, Object> userResponseMap = new HashMap<String, Object>();
@@ -2035,20 +2201,19 @@ public class WebBrowserUtil {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	public static boolean ReadPDF(String url, String pdf) {
 		try {
-			URL testURL = new URL(url);
+			URL TestURL = new URL(url);
 
-			RandomAccessBufferedFileInputStream testFile = new RandomAccessBufferedFileInputStream(
-					testURL.openStream());
-			PDFParser testPDF = new PDFParser(testFile);
-			testPDF.parse();
-			String testText = new PDFTextStripper().getText(testPDF.getPDDocument());
-			if (testText.contains(pdf)) {
+			RandomAccessBufferedFileInputStream TestFile = new RandomAccessBufferedFileInputStream(
+					TestURL.openStream());
+			PDFParser TestPDF = new PDFParser(TestFile);
+			TestPDF.parse();
+			String TestText = new PDFTextStripper().getText(TestPDF.getPDDocument());
+			if (TestText.contains(pdf)) {
 				System.out.println("TestText is present");
-				ExtentCucumberAdapter.addTestStepLog("PDF content : " + testText + " , Expected content : " + pdf);
-				testFile.close();
+				ExtentCucumberAdapter.addTestStepLog("PDF content : " + TestText + " , Expected content : " + pdf);
+				TestFile.close();
 				return true;
 			}
 		} catch (Exception e) {
@@ -2065,7 +2230,8 @@ public class WebBrowserUtil {
 			try {
 				ExtentCucumberAdapter.addTestStepScreenCaptureFromPath("data:image/jpg;base64, " + dest);
 			} catch (Exception e) {
-				log.error(e.getMessage());
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
@@ -2083,7 +2249,8 @@ public class WebBrowserUtil {
 			orderStatus = options.equals(tempList);
 			System.out.println(" orderStatus : " + orderStatus);
 		} catch (Exception e) {
-			log.error(e.getMessage());
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return orderStatus;
 	}
@@ -2124,7 +2291,7 @@ public class WebBrowserUtil {
 
 	public static boolean verifyexceldatafromdb(String sheetName) {
 		try {
-			sheetName = CommonUtil.getData(sheetName);// 0049 List of all possible combinations - Lists method
+			sheetName = CommonUtil.GetData(sheetName);// 0049 List of all possible combinations - Lists method
 														// Complete.xlsx--1M1S
 			String[] splitSheet = sheetName.split("--");
 			String filepath = System.getProperty("user.dir") + "\\src\\test\\java\\attachments\\" + splitSheet[0];// filename
@@ -2172,14 +2339,14 @@ public class WebBrowserUtil {
 
 				if ((month != null)) {
 					queryExtension = queryExtension + "and (";
-					String[] multmnth = month.split(",");
-					for (int i = 0; i < multmnth.length; i++) {
+					String[] mult_mnth = month.split(",");
+					for (int i = 0; i < mult_mnth.length; i++) {
 						WebElement nametxt = driver
 								.findElement(By.xpath("(//div[@class='ant-select-selector']//input)[1]"));
-						nametxt.sendKeys(multmnth[i]);
+						nametxt.sendKeys(mult_mnth[i]);
 						nametxt.sendKeys(Keys.ENTER);
-						queryExtension = queryExtension + "Month= '" + multmnth[i] + "'";
-						if (multmnth.length > 1 && i < (multmnth.length - 1)) {
+						queryExtension = queryExtension + "Month= '" + mult_mnth[i] + "'";
+						if (mult_mnth.length > 1 && i < (mult_mnth.length - 1)) {
 							queryExtension = queryExtension + " OR ";
 						}
 					}
@@ -2189,14 +2356,14 @@ public class WebBrowserUtil {
 
 				if ((src != null)) {
 					queryExtension = queryExtension + "and (";
-					String[] multsrc = src.split(",");
-					for (int i = 0; i < multsrc.length; i++) {
+					String[] mult_src = src.split(",");
+					for (int i = 0; i < mult_src.length; i++) {
 						WebElement srctxt = driver
 								.findElement(By.xpath("(//div[@class='ant-select-selector']//input)[2]"));
-						srctxt.sendKeys(multsrc[i]);
+						srctxt.sendKeys(mult_src[i]);
 						srctxt.sendKeys(Keys.ENTER);
-						queryExtension = queryExtension + "Source= '" + multsrc[i] + "'";
-						if (multsrc.length > 1 && i < (multsrc.length - 1)) {
+						queryExtension = queryExtension + "Source= '" + mult_src[i] + "'";
+						if (mult_src.length > 1 && i < (mult_src.length - 1)) {
 							queryExtension = queryExtension + " OR ";
 						}
 					}
@@ -2205,14 +2372,14 @@ public class WebBrowserUtil {
 				}
 				if ((dst != null)) {
 					queryExtension = queryExtension + "and (";
-					String[] multdst = dst.split(",");
-					for (int i = 0; i < multdst.length; i++) {
+					String[] mult_dst = dst.split(",");
+					for (int i = 0; i < mult_dst.length; i++) {
 						WebElement dsttxt = driver
 								.findElement(By.xpath("(//div[@class='ant-select-selector']//input)[3]"));
-						dsttxt.sendKeys(multdst[i]);
+						dsttxt.sendKeys(mult_dst[i]);
 						dsttxt.sendKeys(Keys.ENTER);
-						queryExtension = queryExtension + "Destination= '" + multdst[i] + "'";
-						if (multdst.length > 1 && i < (multdst.length - 1)) {
+						queryExtension = queryExtension + "Destination= '" + mult_dst[i] + "'";
+						if (mult_dst.length > 1 && i < (mult_dst.length - 1)) {
 							queryExtension = queryExtension + " OR ";
 						}
 					}
@@ -2220,17 +2387,19 @@ public class WebBrowserUtil {
 					queryExtension = queryExtension + ")";
 				}
 
+				// driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
 				WebElement elems = WebBrowserUtil.getSingleElementByXpath("//span[text()='Submit']");
 				elems.click();
+				// driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
 				if (toverify.contains("totalTrips")) {
 					String totaltripsdetails = WebBrowserUtil
 							.getSingleElementByXpath(YMLUtil.getYMLObjectRepositoryData("MILE.TotalTripslLabelXpath"))
 							.getText();
-					String query = CommonUtil.getData("TotalTripsQuery");
-					query = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-							query);
+					String query = CommonUtil.GetData("TotalTripsQuery");
+					query = CommonUtil.GetXMLData(
+							Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 					String dbquery = query.replace("@Dynamic_data", queryExtension);
 					myList.add(WebBrowserUtil.GetdatafromDBandverifyosofdevice(dbquery, totaltripsdetails));
 				}
@@ -2239,9 +2408,9 @@ public class WebBrowserUtil {
 					String validtripsdetails = WebBrowserUtil
 							.getSingleElementByXpath(YMLUtil.getYMLObjectRepositoryData("MILE.ValidTripsLabelXpath"))
 							.getText();
-					String query = CommonUtil.getData("ValidTripsQuery");
-					query = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-							query);
+					String query = CommonUtil.GetData("ValidTripsQuery");
+					query = CommonUtil.GetXMLData(
+							Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 					String dbquery = query.replace("@Dynamic_data", queryExtension);
 					myList.add(WebBrowserUtil.GetdatafromDBandverifyosofdevice(dbquery, validtripsdetails));
 				}
@@ -2249,9 +2418,9 @@ public class WebBrowserUtil {
 					String opentripsdetails = WebBrowserUtil
 							.getSingleElementByXpath(YMLUtil.getYMLObjectRepositoryData("MILE.OpenTripsLabelXpath"))
 							.getText();
-					String query = CommonUtil.getData("OpenTripsQuery");
-					query = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-							query);
+					String query = CommonUtil.GetData("OpenTripsQuery");
+					query = CommonUtil.GetXMLData(
+							Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 					String dbquery = query.replace("@Dynamic_data", queryExtension);
 					myList.add(WebBrowserUtil.GetdatafromDBandverifyosofdevice(dbquery, opentripsdetails));
 
@@ -2260,18 +2429,18 @@ public class WebBrowserUtil {
 					String closedtripsdetails = WebBrowserUtil
 							.getSingleElementByXpath(YMLUtil.getYMLObjectRepositoryData("MILE.ClosedTripsLabelXpath"))
 							.getText();
-					String query = CommonUtil.getData("ClosedTripsQuery");
-					query = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-							query);
+					String query = CommonUtil.GetData("ClosedTripsQuery");
+					query = CommonUtil.GetXMLData(
+							Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 					String dbquery = query.replace("@Dynamic_data", queryExtension);
 					myList.add(WebBrowserUtil.GetdatafromDBandverifyosofdevice(dbquery, closedtripsdetails));
 				}
 				if (toverify.contains("geofenceClosures")) {
 					String geofenceclosuresdetails = WebBrowserUtil.getSingleElementByXpath(
 							YMLUtil.getYMLObjectRepositoryData("MILE.GeofenceClosuresLabelXpath")).getText();
-					String query = CommonUtil.getData("GeofenceClosuresQuery");
-					query = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-							query);
+					String query = CommonUtil.GetData("GeofenceClosuresQuery");
+					query = CommonUtil.GetXMLData(
+							Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 					String dbquery = query.replace("@Dynamic_data", queryExtension);
 					myList.add(WebBrowserUtil.GetdatafromDBandverifyosofdevice(dbquery, geofenceclosuresdetails));
 				}
@@ -2279,9 +2448,9 @@ public class WebBrowserUtil {
 					String forcefulclosuresdetails = WebBrowserUtil.getSingleElementByXpath(
 							YMLUtil.getYMLObjectRepositoryData("MILE.ForcefulClosuresLabelXpath")).getText();
 
-					String query = CommonUtil.getData("ForcefulClosuresQuery");
-					query = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-							query);
+					String query = CommonUtil.GetData("ForcefulClosuresQuery");
+					query = CommonUtil.GetXMLData(
+							Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 					String dbquery = query.replace("@Dynamic_data", queryExtension);
 					myList.add(WebBrowserUtil.GetdatafromDBandverifyosofdevice(dbquery, forcefulclosuresdetails));
 				}
@@ -2290,9 +2459,9 @@ public class WebBrowserUtil {
 							.getSingleElementByXpath(YMLUtil.getYMLObjectRepositoryData("MILE.DelayTripsLabelXpath"))
 							.getText();
 
-					String query = CommonUtil.getData("DelayTripsQuery");
-					query = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-							query);
+					String query = CommonUtil.GetData("DelayTripsQuery");
+					query = CommonUtil.GetXMLData(
+							Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 					String dbquery = query.replace("@Dynamic_data", queryExtension);
 					myList.add(WebBrowserUtil.GetdatafromDBandverifyosofdevice(dbquery, delaytripsdetails));
 				}
@@ -2301,9 +2470,9 @@ public class WebBrowserUtil {
 							.getSingleElementByXpath(
 									YMLUtil.getYMLObjectRepositoryData("MILE.AverageDailyDistanceLabelXpath"))
 							.getText();
-					String query = CommonUtil.getData("AverageDailyDistanceQuery");
-					query = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-							query);
+					String query = CommonUtil.GetData("AverageDailyDistanceQuery");
+					query = CommonUtil.GetXMLData(
+							Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 					String dbquery = query.replace("@Dynamic_data", queryExtension);
 					myList.add(WebBrowserUtil.GetdatafromDBandverifyosofdevice(dbquery, averagedailydistancedetails));
 				}
@@ -2312,9 +2481,9 @@ public class WebBrowserUtil {
 							.getSingleElementByXpath(
 									YMLUtil.getYMLObjectRepositoryData("MILE.AverageDaysToDeliverLabelXpath"))
 							.getText();
-					String query = CommonUtil.getData("AverageDaystoDeliverQuery");
-					query = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-							query);
+					String query = CommonUtil.GetData("AverageDaystoDeliverQuery");
+					query = CommonUtil.GetXMLData(
+							Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 					String dbquery = query.replace("@Dynamic_data", queryExtension);
 					myList.add(WebBrowserUtil.GetdatafromDBandverifyosofdevice(dbquery, averagedaystodeliverdetails));
 				}
@@ -2322,23 +2491,24 @@ public class WebBrowserUtil {
 					String otifdetails = WebBrowserUtil
 							.getSingleElementByXpath(YMLUtil.getYMLObjectRepositoryData("MILE.OtifLabelXpath"))
 							.getText();
-					String query = CommonUtil.getData("OtifQuery");
-					query = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-							query);
+					String query = CommonUtil.GetData("OtifQuery");
+					query = CommonUtil.GetXMLData(
+							Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 					String dbquery = query.replace("@Dynamic_data", queryExtension);
 					myList.add(WebBrowserUtil.GetdatafromDBandverifyosofdevice(dbquery, otifdetails));
 				}
 				if (toverify.contains("carbonemission")) {
 					String carbonemissiondetails = WebBrowserUtil.getSingleElementByXpath(
 							YMLUtil.getYMLObjectRepositoryData("MILE.CarbonEmissionLabelXpath")).getText();
-					String query = CommonUtil.getData("CarbonEmissionQuery");
-					query = CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "DBSettings.xml").toString(),
-							query);
+					String query = CommonUtil.GetData("CarbonEmissionQuery");
+					query = CommonUtil.GetXMLData(
+							Paths.get(path.toString(), "src", "test", "java", "DBSettings.xml").toString(), query);
 					String dbquery = query.replace("@Dynamic_data", queryExtension);
 					myList.add(WebBrowserUtil.GetdatafromDBandverifyosofdevice(dbquery, carbonemissiondetails));
 				}
 				WebElement elex = WebBrowserUtil.getSingleElementByXpath("//span[text()='Reset']");
 				elex.click();
+				// driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 			}
 
@@ -2362,33 +2532,47 @@ public class WebBrowserUtil {
 		driver = WebBrowser.getBrowser();
 		File source = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 		try {
-			boolean enableCompareImage = Boolean.parseBoolean(
-					CommonUtil.getXMLData(Paths.get(path, "src", "test", "java", "ApplicationSettings.xml").toString(),
-							"EnableCompareImage"));
+			boolean EnableCompareImage = Boolean.parseBoolean(CommonUtil.GetXMLData(
+					Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(),
+					"EnableCompareImage"));
 
-			String compareImages = "src/test/java/Images/Compare/";
-			File file = new File(compareImages);
+			String CompareImages = "src/test/java/Images/Compare/";
+			File file = new File(CompareImages);
 			file.mkdirs();
 
-			String baseImages = "src/test/java/Images/Baseline/";
-			File file1 = new File(baseImages);
+			String BaseImages = "src/test/java/Images/Baseline/";
+			File file1 = new File(BaseImages);
 			file1.mkdirs();
 
-			if (enableCompareImage == false) {
-				File dest = new File(baseImages + imageName + ".jpeg");
-				FileUtils.copyFile(source, dest);
+			if (EnableCompareImage == false) {
+				File Dest = new File(BaseImages + imageName + ".jpeg");
+				FileUtils.copyFile(source, Dest);
 				return verified;
 			} else {
-				File dest = new File(compareImages + imageName + ".jpeg");
-				FileUtils.copyFile(source, dest);
-				BufferedImage imgA = ImageIO.read(new File(compareImages + imageName + ".jpeg"));
+				File Dest = new File(CompareImages + imageName + ".jpeg");
+				FileUtils.copyFile(source, Dest);
+				BufferedImage imgA = ImageIO.read(new File(CompareImages + imageName + ".jpeg"));
 
 				DataBuffer dbA = imgA.getData().getDataBuffer();
 				int sizeA = dbA.getSize();
 
-				BufferedImage imgB = ImageIO.read(new File(baseImages + imageName + ".jpeg"));
+				BufferedImage imgB = ImageIO.read(new File(BaseImages + imageName + ".jpeg"));
 				DataBuffer dbB = imgB.getData().getDataBuffer();
 				int sizeB = dbB.getSize();
+				// if (imgA.getWidth() == imgB.getWidth() && imgA.getHeight() ==
+				// imgB.getHeight()) {
+				// for (int x = 0; x < imgA.getWidth(); x++) {
+				// for (int y = 0; y < imgA.getHeight(); y++) {
+				// if (imgA.getRGB(x, y) != imgB.getRGB(x, y)) {
+				// System.out.println("Images A resolution width: "+imgA.getWidth()+" and
+				// height: "+imgA.getHeight());
+				// System.out.println("Images B resolution width: "+imgB.getWidth()+" and
+				// height: "+imgB.getHeight());
+				// ExtentCucumberAdapter.addTestStepLog("Images are not same");
+				// return false;}
+				// }
+				// }
+				// }
 				if (sizeA == sizeB) {
 					for (int i = 0; i < sizeA; i++) {
 						if (dbA.getElem(i) != dbB.getElem(i)) {
@@ -2407,9 +2591,10 @@ public class WebBrowserUtil {
 			verified = false;
 			System.err.println("Error: " + ex.getMessage());
 		}
+		// ExtentCucumberAdapter.addTestStepLog("Images are same");
 		return verified;
 
-	}
+	} // End of compare image
 
 	public static String getlatestfile(String ext) {
 		File theNewestFile = null;
@@ -2418,12 +2603,17 @@ public class WebBrowserUtil {
 
 			File dir = new File(path);
 			FileFilter fileFilter = new WildcardFileFilter("*." + ext);
+			// FileFilter fileFilter = new WildcardFileFilter("*.pdf*");
 			File[] files = dir.listFiles(fileFilter);
+
+			String fileExtension = null;
+
 			if (files.length > 0) {
 				/** The newest file comes first **/
 				Arrays.sort(files, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
 				theNewestFile = files[0];
 				System.out.println("theNewestFile is :------" + theNewestFile);
+
 			}
 
 		} catch (Exception e) {
@@ -2431,198 +2621,6 @@ public class WebBrowserUtil {
 			throw new CustomException(e.getMessage(), e);
 		}
 		return theNewestFile.toString();
-	}
-
-	public static String FormatDate(String data) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-		LocalDate currentDate = LocalDate.now();
-
-		if ("current date".equalsIgnoreCase(data)) {
-			return currentDate.format(formatter);
-		}
-
-		boolean isAddition = data.contains("+");
-		boolean isSubtraction = data.contains("-");
-
-		if (isAddition || isSubtraction) {
-			return processDateAdjustment(data, currentDate, isAddition);
-		}
-		return "";
-	}
-
-	private static String processDateAdjustment(String data, LocalDate currentDate, boolean isAddition) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-		String[] dateParts = data.split("\\+|-", 2);
-		if (dateParts.length < 2) {
-			return "";
-		}
-
-		String[] timeUnits = dateParts[1].trim().split(" ", 2);
-		if (timeUnits.length < 2) {
-			return "";
-		}
-
-		int amount;
-		try {
-			amount = Integer.parseInt(timeUnits[0]);
-		} catch (NumberFormatException e) {
-			return "";
-		}
-
-		String unit = timeUnits[1].toLowerCase();
-		LocalDate adjustedDate = currentDate; // Default value
-
-		switch (unit) {
-		case "days":
-			adjustedDate = isAddition ? currentDate.plusDays(amount) : currentDate.minusDays(amount);
-			break;
-		case "weeks":
-			adjustedDate = isAddition ? currentDate.plusWeeks(amount) : currentDate.minusWeeks(amount);
-			break;
-		case "months":
-			adjustedDate = isAddition ? currentDate.plusMonths(amount) : currentDate.minusMonths(amount);
-			break;
-		case "years":
-			adjustedDate = isAddition ? currentDate.plusYears(amount) : currentDate.minusYears(amount);
-			break;
-		default:
-			throw new IllegalArgumentException("Invalid time unit: " + unit);
-		}
-
-		return adjustedDate.format(formatter);
-	}
-
-// To edit CSV file with specified value for the specified header
-// The values in testdata file should be passed as "sample-csv.csv,##1,Exam_Code:randomnumber_10,ExamCode_withModifier:@randomtext,##2,modality:JK,bodyRegion:Head,exam_code_short_name:Short Name,##3,exam_code_med_name:Text,dateStart:current date,dateEnd:current date+5 Years"
-	@SuppressWarnings("deprecation")
-	public static void EditCSVfile(String values) {
-		String[] splitValues1 = values.split("##");
-
-		String filePath = Paths.get(System.getProperty("user.dir"), splitValues1[0].split(",")[0]).toString();
-
-		try {
-			// Read existing CSV data
-			FileReader reader = new FileReader(filePath);
-			CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-			List<CSVRecord> records = csvParser.getRecords();
-			List<String> headers = new ArrayList<>(csvParser.getHeaderMap().keySet());
-
-			// Create a temporary list to hold the modified records
-			List<List<String>> modifiedRecords = new ArrayList<>();
-			String value = "";
-			int i = 0;
-			// Iterate over the records and append text to the specified column
-			for (CSVRecord record : records) {
-				i++;
-				Map<String, String> modifications = new HashMap<>();
-				for (String item : splitValues1) {
-					String[] items = item.split(",");
-					if (items[0].equals(String.valueOf(i))) { // if the specified row(items[0]) is same as the current
-																// row (i)?
-						// Create new string "items" by removing the first element
-						String[] dataList = new String[items.length - 1];
-						System.arraycopy(items, 1, dataList, 0, dataList.length);
-						for (String Data : dataList) {
-							String[] splitData = Data.split(":");
-							// Modify the value as needed
-							String modifiedValue = GetRequiredValue(splitData[1]);
-							if (splitData[0].equals("Exam_Code"))
-								CommonUtil.setCopiedText(modifiedValue);
-							modifications.put(splitData[0], modifiedValue);
-						}
-					}
-				}
-				List<String> newRecord = new ArrayList<>();
-				for (String header : headers) {
-					if (modifications.containsKey(header))
-						value = modifications.get(header);
-					else
-						value = record.get(header);
-					newRecord.add(value);
-				}
-				modifiedRecords.add(newRecord); // modifiedRecords=> To get modifiedRecord
-			}
-
-			csvParser.close();
-			reader.close();
-
-			// Write the modified data back to the original file
-			FileWriter writer = new FileWriter(filePath);
-			CSVPrinter csvPrinter = new CSVPrinter(writer,
-					CSVFormat.DEFAULT.withHeader(headers.toArray(new String[0])));
-
-			for (List<String> modifiedRecord : modifiedRecords) {
-				csvPrinter.printRecord(modifiedRecord);
-			}
-
-			csvPrinter.close();
-			writer.close();
-
-		} catch (IOException e) {
-			System.out.println("Error in editing CSV file" + e);
-			throw new CustomException(e.getMessage(), e);
-
-		}
-	}
-
-// If data contains "date" format date as required else get random number or random text or retain the data
-	public static String GetRequiredValue(String data) {
-		if (data.contains("date")) {
-			data = WebBrowserUtil.FormatDate(data);
-			return data;
-		} else
-			return CommonUtil.getData(data);
-	}
-
-// read specified value of data in CSV file
-// The value is specified in testdata file as "sample-csv.csv,##2,exam_code_short_name"	 ##2=> 2nd row excluding header row	
-	@SuppressWarnings("deprecation")
-	public static boolean ReadCSVfile(String values) {
-		values = CommonUtil.getData(values);
-		boolean isVerified = false;
-		String[] splitValues = values.split(",");
-		String expectedValue = splitValues[2];
-
-		String[] splitValues1 = values.split("##");
-
-		String filePath = Paths.get(System.getProperty("user.dir"), splitValues1[0].split(",")[0]).toString();
-		String value = "";
-		try {
-			// Read existing CSV data
-			FileReader reader = new FileReader(filePath);
-			CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-			List<CSVRecord> records = csvParser.getRecords();
-			List<String> headers = new ArrayList<>(csvParser.getHeaderMap().keySet());
-
-			// Create a temporary list to hold the modified records
-			int i = 0;
-			// Iterate over the records and append text to the specified column
-			for (CSVRecord record : records) {
-				i++;
-				for (String item : splitValues1) {
-					String[] items = item.split(",");
-					if (items[0].equals(String.valueOf(i))) { // if the specified row(items[0]) is same as the current
-																// row (i)?
-						for (String header : headers) {
-							if (header.equals(items[1])) {
-								value = record.get(header);
-								break;
-							}
-						}
-					}
-				}
-			}
-			csvParser.close();
-			reader.close();
-		} catch (IOException e) {
-			System.out.println("Error in editing CSV file" + e);
-			throw new CustomException(e.getMessage(), e);
-		}
-
-		isVerified = value.equals(expectedValue);
-		ExtentCucumberAdapter
-				.addTestStepLog("Value read from CSV file : " + value + " ;  Expected value : " + expectedValue);
-		return isVerified;
 	}
 
 	public static void ScrollRandomlyByNumber(String xpath, String identifier, String text) {
@@ -2638,6 +2636,7 @@ public class WebBrowserUtil {
 					JavascriptExecutor js = (JavascriptExecutor) driver;
 					for (int j = 0; j < num; j++) {
 						js.executeScript("arguments[0].scrollTop += 350;", element);
+						// Wait for a short while for the scroll to take effect
 						try {
 							Thread.sleep(1000);
 						} catch (InterruptedException e) {
@@ -2659,7 +2658,7 @@ public class WebBrowserUtil {
 
 	public static void deleteFile(String filePath) {
 		try {
-			filePath = CommonUtil.getData(filePath);
+			filePath = CommonUtil.GetData(filePath);
 			File fileToBeDeleted = new File(filePath);
 			if (fileToBeDeleted.exists()) {
 				if (fileToBeDeleted.delete()) {
@@ -2679,7 +2678,7 @@ public class WebBrowserUtil {
 		boolean isVerified = false;
 		String actualText = "";
 		try {
-			filePath = CommonUtil.getData(filePath);
+			filePath = CommonUtil.GetData(filePath);
 			String[] data = filePath.split(",");
 			filePath = data[0];
 			if (!(data[0].contains(":"))) {
@@ -2713,164 +2712,6 @@ public class WebBrowserUtil {
 		}
 	}
 
-	public static void selectByCoordinates(String text) {
-
-		driver = WebBrowser.getBrowser();
-		try {
-			int yaxis = 0;
-			int xaxis = 0;
-			String desiredPath = System.getProperty("user.dir");
-			File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-			// Define the destination file
-			File destinationFile = new File("screenshot.png");
-
-			try {
-				// Copy the screenshot to the destination file
-				Files.copy(screenshot.toPath(), destinationFile.toPath());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			String screenshotPath = destinationFile.getAbsolutePath();
-			String pythonPath = desiredPath + "/detect.py";
-			String[] textSplit = text.split(",");
-			String imagePath = desiredPath + "\\src\\test\\java\\attachments\\" + textSplit[0];
-			if (!textSplit[1].isEmpty()) {
-				yaxis = Integer.parseInt(textSplit[1]);
-			}
-			if (!textSplit[2].isEmpty()) {
-				xaxis = Integer.parseInt(textSplit[2]);
-			}
-			// Load the screenshot
-			File file = new File(screenshotPath);
-			BufferedImage screenshot1 = ImageIO.read(file);
-
-			List<List<Integer>> resultList = GetCoordinatesByImage(pythonPath, screenshotPath, imagePath);
-
-			List<Integer> coordinates = resultList.get(0);
-			int x = coordinates.get(0) + xaxis;
-			int y = coordinates.get(1) + yaxis;
-
-			Robot robot = new Robot();
-			robot.setAutoDelay(1000);
-
-			// Move the mouse to the coordinates and click
-			robot.mouseMove(x, y);
-
-			robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-			try {
-				Thread.sleep(100); // 100 milliseconds delay
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-			robot.delay(2000);
-
-			destinationFile.delete();
-
-		} catch (Exception ex) {
-			log.error(ex.getMessage());
-		}
-
-	}
-
-	public static boolean verifyByImage(String text) {
-
-		driver = WebBrowser.getBrowser();
-		boolean isVerifed = false;
-		try {
-			String desiredPath = System.getProperty("user.dir");
-			File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-			// Define the destination file
-			File destinationFile = new File("screenshot.png");
-			try {
-				// Copy the screenshot to the destination file
-				Files.copy(screenshot.toPath(), destinationFile.toPath());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			String screenshotPath = destinationFile.getAbsolutePath();
-			String pythonPath = desiredPath + "\\detect.py";
-			String imagePath = desiredPath + "\\src\\test\\java\\attachments\\" + text;
-
-			// Load the screenshot
-			File file = new File(screenshotPath);
-			BufferedImage screenshot1 = ImageIO.read(file);
-
-			List<List<Integer>> resultList = GetCoordinatesByImage(pythonPath, screenshotPath, imagePath);
-			destinationFile.delete();
-			List<Integer> coordinates = resultList.get(0);
-			int x = coordinates.get(0);
-			int y = coordinates.get(1);
-			if (x != 0 && y != 0) {
-				isVerifed = true;
-			}
-		} catch (Exception ex) {
-			log.error(ex.getMessage());
-		}
-		return isVerifed;
-
-	}
-
-	public static List<List<Integer>> GetCoordinatesByImage(String pythonScriptPath, String sccreenshot,
-			String target) {
-		// Path to the Python script
-		// Construct the command
-		String[] command = { "python", pythonScriptPath, sccreenshot, target };
-		List<List<Integer>> resultList = new ArrayList<>();
-		try {
-			// Start the process
-			ProcessBuilder processBuilder = new ProcessBuilder(command);
-			Process process = processBuilder.start();
-
-			// Wait for the process to complete
-			int exitCode = process.waitFor();
-
-			if (exitCode != 0) {
-				BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-				StringBuilder errorOutput = new StringBuilder();
-				String line;
-				while ((line = errorReader.readLine()) != null) {
-					errorOutput.append(line).append("\n");
-				}
-				System.err.println("Error output: " + errorOutput.toString());
-			} else {
-				String desiredPath = System.getProperty("user.dir");
-				// Read the JSON file with detections
-				String jsonFilePath = desiredPath + "\\detect.json";
-				resultList = readDetectionsFromJson(jsonFilePath);
-			}
-
-		} catch (IOException | InterruptedException | JSONException e) {
-			e.printStackTrace();
-		}
-
-		return resultList;
-	}
-
-	private static List<List<Integer>> readDetectionsFromJson(String filePath) throws IOException, JSONException {
-		BufferedReader reader = new BufferedReader(new FileReader(filePath));
-		StringBuilder jsonContent = new StringBuilder();
-		String line;
-		while ((line = reader.readLine()) != null) {
-			jsonContent.append(line);
-		}
-		reader.close();
-
-		// Parse the JSON content
-		JSONArray jsonArray = new JSONArray(jsonContent.toString());
-		List<List<Integer>> detections = new ArrayList<>();
-		System.out.println(jsonArray.length());
-		for (int i = 0; i < jsonArray.length(); i++) {
-			JSONArray innerArray = jsonArray.getJSONArray(i);
-			List<Integer> detection = new ArrayList<>();
-			for (int j = 0; j < innerArray.length(); j++) {
-				detection.add((int) innerArray.getDouble(j));
-			}
-			detections.add(detection);
-		}
-		return detections;
-	}
-
 	public static void captureAndCompressScreenshot() {
 		driver = WebBrowser.getBrowser();
 		try {
@@ -2880,8 +2721,11 @@ public class WebBrowserUtil {
 
 			// Get the original image size
 			long originalFileSize = screenshotFile.length(); // in bytes
+			System.out.println("Original Image Size: " + (originalFileSize / 1024) + " KB");
+
 			// If the image size is already below the threshold, skip compression
 			if (originalFileSize <= 70 * 1024) { // If <= 70 KB
+				System.out.println("Image is already below 70 KB. No compression needed.");
 				sce.attach(java.nio.file.Files.readAllBytes(screenshotFile.toPath()), "image/jpeg", "image");
 				return;
 			}
@@ -2908,18 +2752,20 @@ public class WebBrowserUtil {
 				}
 
 				long compressedFileSize = outputStream.size();
+				System.out.println("Current Compressed File Size: " + (compressedFileSize / 1024) + " KB");
+
 				// Store the best compressed version
 				if (compressedFileSize < bestFileSize) {
 					bestCompressedScreenshot = outputStream.toByteArray();
 					bestFileSize = compressedFileSize;
 				}
-
 				// Stop if within target size
 				if (compressedFileSize <= 70 * 1024) {
 					withinRange = true;
 				} else if (compressionQuality > 0.05f) {
 					compressionQuality -= 0.03f; // Reduce quality gradually
 				} else {
+					System.out.println("Failed to reach target size with acceptable quality.");
 					break;
 				}
 			}
@@ -2927,8 +2773,10 @@ public class WebBrowserUtil {
 
 			// Attach the best available image
 			if (bestCompressedScreenshot != null && bestFileSize <= originalFileSize) {
+				System.out.println("Final Image Size: " + (bestFileSize / 1024) + " KB");
 				sce.attach(bestCompressedScreenshot, "image/jpeg", "image");
 			} else {
+				System.out.println("Compression failed to reduce size significantly. Using original image.");
 				sce.attach(java.nio.file.Files.readAllBytes(screenshotFile.toPath()), "image/jpeg", "image");
 			}
 		} catch (IOException e) {

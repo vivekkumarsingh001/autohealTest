@@ -1,23 +1,46 @@
-<?xml version = "1.0" encoding = "utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <ApplicationSettings>
-<URL></URL>
-<APIURL></APIURL>
-<BrowserType>Chrome</BrowserType>
-<EnableDebugLog>False</EnableDebugLog>
-<EnableScrenshotForSucess>True</EnableScrenshotForSucess>
-<EnableScrenshotForFailure>True</EnableScrenshotForFailure>
-<EnableScrenshotForAllSteps>False</EnableScrenshotForAllSteps>
-<EnableVideoCaptureForSucess>False</EnableVideoCaptureForSucess>
-<EnableSeparateFailureReport>False</EnableSeparateFailureReport>
-<QueuingForTestcases>False</QueuingForTestcases>
-<ParallelExecution>False</ParallelExecution>
-<EnableCompareImage>False</EnableCompareImage>
-<MaximumTimeInSecondsToWaitForControl>30</MaximumTimeInSecondsToWaitForControl>
-<MaximumTimeInMilliSecondsToWaitForPage>15000</MaximumTimeInMilliSecondsToWaitForPage>
-<TimeIntervalInMilliSecondsToWaitForPage>500</TimeIntervalInMilliSecondsToWaitForPage>
-<ToEmail></ToEmail>
-<FromEmail>codegenerator.algoaf@gmail.com</FromEmail>
-<FromPassword>AlgoAF@123</FromPassword>
-<TestStatusForEmailAlert>Passed</TestStatusForEmailAlert>
-<ProfilerID></ProfilerID>
+    <URL>https://www.saucedemo.com</URL>
+    <APIURL/>
+    <BrowserType>Headless Chrome</BrowserType>
+    <EnableDebugLog>False</EnableDebugLog>
+    <WebdriverPath>Na</WebdriverPath>
+    <PrintTextInConsole>False</PrintTextInConsole>
+    <ProjectName>swag labs</ProjectName>
+    <EnableScrenshotForSucess>True</EnableScrenshotForSucess>
+    <EnableScrenshotForFailure>True</EnableScrenshotForFailure>
+    <EnableEachStepScreenshot>False</EnableEachStepScreenshot>
+    <EnableVideoCaptureForSuccess>False</EnableVideoCaptureForSuccess>
+    <EnableVideoCaptureForFailure>False</EnableVideoCaptureForFailure>
+    <EnableCompareImage>False</EnableCompareImage>
+    <MaximumTimeInSecondsToWaitForControl>30</MaximumTimeInSecondsToWaitForControl>
+    <MaximumTimeInMilliSecondsToWaitForPage>15000</MaximumTimeInMilliSecondsToWaitForPage>
+    <TimeIntervalInMilliSecondsToWaitForPage>500</TimeIntervalInMilliSecondsToWaitForPage>
+    <DownloadInCurrentDirectory>False</DownloadInCurrentDirectory>
+    <HighLightWebElement>false</HighLightWebElement>
+    <EnableSoftassertion>False</EnableSoftassertion>
+    <EnableFullScreenshot>False</EnableFullScreenshot>
+    <EnableDesktopFullScreenshot>False</EnableDesktopFullScreenshot>
+    <SubmitResultToTFS>false</SubmitResultToTFS>
+    <StoreScreenshot>false</StoreScreenshot>
+    <ToEmail/>
+    <FromEmail/>
+    <FromPassword/>
+    <LambdaTestBuild/>
+    <LambdaTestURL/>
+    <NetworkLog>False</NetworkLog>
+    <Token>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1NDEsInByb2plY3RJZCI6MTk2OSwidXNlck5hbWUiOiJTYWt0aGkgS0wiLCJiYXNlVXJsIjoiaHR0cHM6Ly9wcmUtcHJvZC5hbGdvc2hhY2submV0IiwiaWF0IjoxNzQzMTQ3MDI1fQ.5v2QdXkdeehFHYjebfuBmtueV96aTP8dY4R8pvlU1DE</Token>
+    <UserName>Sakthi KL</UserName>
+    <AutoHealing>True</AutoHealing>
+    <EnablePercy>yes</EnablePercy>
+    <JiraIntegration>False</JiraIntegration>
+    <JiraIntegrationParameters>JiraUrl,Username,Password,ProjectKey,IssueType,ReporterName</JiraIntegrationParameters>
+    <AzureTFSIntegration>False</AzureTFSIntegration>
+    <AzureIntegrationTFSCredentials>OrganisationName,ProjectName,PersonalAccessToken</AzureIntegrationTFSCredentials>
+    <ProfilePath/>
+    <Cookies>False</Cookies>
+    <HubURL>http://192.168.29.57:4444/wd/hub</HubURL>
+    <Type>Selenium</Type>
+    <DownloadPath/>
+    <RetryFailedTestCaseCount>1</RetryFailedTestCaseCount>
 </ApplicationSettings>

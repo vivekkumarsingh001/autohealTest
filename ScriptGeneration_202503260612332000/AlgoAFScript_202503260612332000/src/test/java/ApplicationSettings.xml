@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ApplicationSettings>
-    <URL>https://demowebshop.tricentis.com/login</URL>
+    <URL>https://www.saucedemo.com</URL>
     <APIURL/>
-    <BrowserType>Chrome</BrowserType>
+    <BrowserType>Headless Chrome</BrowserType>
     <EnableDebugLog>False</EnableDebugLog>
     <WebdriverPath>Na</WebdriverPath>
     <PrintTextInConsole>False</PrintTextInConsole>
-    <ProjectName>Autohealing 24_03</ProjectName>
-    <EnableCustomReport>true</EnableCustomReport>
+    <ProjectName>swag labs</ProjectName>
     <EnableScrenshotForSucess>True</EnableScrenshotForSucess>
     <EnableScrenshotForFailure>True</EnableScrenshotForFailure>
     <EnableEachStepScreenshot>False</EnableEachStepScreenshot>
@@ -23,15 +22,15 @@
     <EnableFullScreenshot>False</EnableFullScreenshot>
     <EnableDesktopFullScreenshot>False</EnableDesktopFullScreenshot>
     <SubmitResultToTFS>false</SubmitResultToTFS>
-    <StoreScreenshot>False</StoreScreenshot>
+    <StoreScreenshot>false</StoreScreenshot>
     <ToEmail/>
     <FromEmail/>
     <FromPassword/>
     <LambdaTestBuild/>
     <LambdaTestURL/>
     <NetworkLog>False</NetworkLog>
-    <Token>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjU3OTYsInByb2plY3RJZCI6MzMxMDQsInVzZXJOYW1lIjoiVmlkaXNoYSBCaGF0IiwiYmFzZVVybCI6Imh0dHBzOi8vc3RhZ2luZy5hbGdvc2hhY2submV0IiwiaWF0IjoxNzQyOTY5NTcxfQ.H7cb2Gc62imj2tuWHd0HF5yCGoPu8RiPQxviIbcf4MA</Token>
-    <UserName>Vidisha Bhat</UserName>
+    <Token>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1NDEsInByb2plY3RJZCI6MTk2OSwidXNlck5hbWUiOiJTYWt0aGkgS0wiLCJiYXNlVXJsIjoiaHR0cHM6Ly9wcmUtcHJvZC5hbGdvc2hhY2submV0IiwiaWF0IjoxNzQzMTQ3MDI1fQ.5v2QdXkdeehFHYjebfuBmtueV96aTP8dY4R8pvlU1DE</Token>
+    <UserName>Sakthi KL</UserName>
     <AutoHealing>True</AutoHealing>
     <EnablePercy>yes</EnablePercy>
     <JiraIntegration>False</JiraIntegration>
