@@ -2,7 +2,7 @@ Home Page:
   loginPagepagetitle: login
 Swag Labs:
   DefaultpagepageTitle: ''
-  PasswordTextBoxXPATH: //input[@id='pasword']
+  PasswordTextBoxXPATH: //input[@id='password']
   UsernameTextBoxXPATH: //input[@id='user-name']
   loginbuttonButtonXPATH: //input[@id='login-button']
   messageLabeltext: ''
