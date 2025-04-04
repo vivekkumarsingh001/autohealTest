@@ -235,7 +235,7 @@ System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
 
 	    } catch (Exception e) {
                 System.out.println("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-	        System.out.println("Error saving HTML file: " + e.getMessage(), e);
+	        System.out.println("Error saving HTML file: ");
 
 	        // Additional debugging for Jenkins
 
@@ -247,7 +247,7 @@ System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
 
 	        } catch (Exception ex) {
 
-	            System.out.println("Couldn't get filesystem info", ex);
+	            System.out.println("Couldn't get filesystem info");
 
 	        }
 
