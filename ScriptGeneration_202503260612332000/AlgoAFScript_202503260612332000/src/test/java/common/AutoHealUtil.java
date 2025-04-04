@@ -202,11 +202,11 @@ public class AutoHealUtil {
 	        // 4. Write with explicit flushing and verification
 
 	        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8);
-
+                     Thread.sleep(5000);
 	             BufferedWriter out = new BufferedWriter(writer)) {
-
+                     Thread.sleep(5000);
 	            out.write(pageSource);
-
+                     Thread.sleep(5000);
 	            out.flush(); // Explicit flush
 
 	            // Verify file was written
