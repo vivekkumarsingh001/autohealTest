@@ -134,6 +134,7 @@ public class YMLUtil {
 		AutoHealUtil.setXpathKey(key);
 		try {
 			String data = HtmlElementReader.getTargetByLocator(output).replace("\'", "\"");
+			 System.out.println('data::::::::::::::::: '+ data)
 			AutoHealUtil.setTarget(data);
 		} catch (Exception ex) {
 			log.error(ex.getMessage());
