@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.nio.charset.StandardCharsets;
 
 public class AutoHealUtil {
-System.out.println("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
+        
 	// getters/setters
 	private static String xpath;
 	private static String xpathKey;
@@ -207,11 +207,11 @@ System.out.println("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
 	        // 4. Write with explicit flushing and verification
 
 	        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8);
-                     Thread.sleep(5000);
+                     // Thread.sleep(5000);
 	             BufferedWriter out = new BufferedWriter(writer)) {
-                     Thread.sleep(5000);
+                     // Thread.sleep(5000);
 	            out.write(pageSource);
-                     Thread.sleep(5000);
+                     // Thread.sleep(5000);
 	            out.flush(); // Explicit flush
 System.out.println("fffffffffffffffffffffffffffffffffffffff");
 	            // Verify file was written
