@@ -173,16 +173,17 @@ public class AutoHealUtil {
 	    try {
 
 	        WebDriver driver = WebBrowser.getBrowser();
-
+System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaa");
 	        // 1. First verify driver has content
 
 	        String currentUrl = driver.getCurrentUrl();
+System.out.println("bbbbbbbbbbbbbbbbbbbbbbb: " + currentUrl);
 
 	        String pageTitle = driver.getTitle();
+System.out.println("cccccccccccccccccccccccccccccccccccc");
+	        System.out.println("Attempting to save HTML from URL: " + currentUrl);
 
-	        log.info("Attempting to save HTML from URL: " + currentUrl);
-
-	        log.info("Page title: " + pageTitle);
+	        System.out.println("Page title: " + pageTitle);
 
 	        // 2. Wait for page to be properly loaded
 
@@ -191,12 +192,12 @@ public class AutoHealUtil {
 	            return ((JavascriptExecutor)d).executeScript("return document.readyState").equals("complete");
 
 	        });
-
+System.out.println("ddddddddddddddddddddddddddddddddd");
 	        // 3. Get the page source with verification
 
 	        String pageSource = driver.getPageSource();
 
-
+System.out.println("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
 	        log.info("Page source length: " + pageSource.length());
 
 	        // 4. Write with explicit flushing and verification
@@ -208,14 +209,15 @@ public class AutoHealUtil {
 	            out.write(pageSource);
                      Thread.sleep(5000);
 	            out.flush(); // Explicit flush
-
+System.out.println("fffffffffffffffffffffffffffffffffffffff");
 	            // Verify file was written
 
 	            File outputFile = new File(htmlFile);
-
+System.out.println("gggggggggggggggggggggggggggggggggggg");
 	            if (outputFile.exists() && outputFile.length() > 0) {
 
-	                log.info("Successfully wrote HTML to: " + outputFile.getAbsolutePath());
+	                System.out.println("Successfully wrote HTML to: " + outputFile.getAbsolutePath());
+System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
 
 	            } else {
 
