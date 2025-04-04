@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.nio.charset.StandardCharsets;
 
 public class AutoHealUtil {
+System.out.println("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
 	// getters/setters
 	private static String xpath;
 	private static String xpathKey;
@@ -63,6 +64,7 @@ public class AutoHealUtil {
 
 	public static void updtaeXML(String uidTag) {
 		try {
+		System.out.println("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
 			String workingDirectory;
 			// here, we assign the name of the OS, according to Java, to a variable...
 			String os = (System.getProperty("os.name")).toUpperCase();
@@ -73,6 +75,7 @@ public class AutoHealUtil {
 				workingDirectory = System.getenv("LOCALAPPDATA");
 			}
 			else if (os.contains("LINUX")) {
+				System.out.println("lllllllllllllllllllllllllllllllllllllllllll");
 				// it is simply the location of the "AppData" folder
 				workingDirectory = "/tmp";
 			}
@@ -84,7 +87,7 @@ public class AutoHealUtil {
 				workingDirectory += "/Library/Application Support";
 			}
 			String autoHealPath = Paths.get(workingDirectory, "AlgoAF", "AutoHeal", "web_" + uidTag).toString();
-
+System.out.println("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm: " + autoHealPath);
 			createDirectory(autoHealPath);
 
 			String xmlFile = Paths.get(autoHealPath, "AFConfig.xml").toString();
@@ -139,7 +142,8 @@ public class AutoHealUtil {
 			DOMSource source = new DOMSource(doc);
 			StreamResult result = new StreamResult(new File(xmlFile));
 			transformer.transform(source, result);
-			log.info("XML File saved!");
+		System.out.println("lllllllllllllllllllllllllllllllllllllllllll");
+			System.out.println(">>>>>>>>>>>>>>>>>>XML File saved!<<<<<<<<<<<<<<<<<<<<<");
 
 			saveHtmlPageSource(htmlFile);
 
