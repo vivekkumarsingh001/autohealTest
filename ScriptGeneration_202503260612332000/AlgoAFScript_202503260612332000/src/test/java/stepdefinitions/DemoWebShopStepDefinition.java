@@ -28,7 +28,7 @@ import common.*;
                 
             }
              @Then("^'(.*)' is displayed with '(.*)'$")			
-            public void thenpageIsDisplayedWithcontent(String  varpage, String varcontent)
+            public void thenpageIsDisplayedWithcontent(String varpage, String varcontent)
             {
                 Assertion.isTrue(workFlow.verifyDefaultpageIsdisplayed(varpage), "Then '<page>' is displayed with '<content>'");
                 Assertion.isTrue(workFlow.verifymessageIsDisplayed(varcontent), "");
