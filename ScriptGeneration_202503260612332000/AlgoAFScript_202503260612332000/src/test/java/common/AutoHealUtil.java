@@ -230,20 +230,20 @@ System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
 	        }
 
 	    } catch (Exception e) {
-
-	        log.error("Error saving HTML file: " + e.getMessage(), e);
+                System.out.println("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+	        System.out.println("Error saving HTML file: " + e.getMessage(), e);
 
 	        // Additional debugging for Jenkins
 
 	        try {
 
-	            log.error("Current working directory: " + System.getProperty("user.dir"));
+	            System.out.println("Current working directory: " + System.getProperty("user.dir"));
 
-	            log.error("File system roots: " + Arrays.toString(File.listRoots()));
+	            System.out.println("File system roots: " + Arrays.toString(File.listRoots()));
 
 	        } catch (Exception ex) {
 
-	            log.error("Couldn't get filesystem info", ex);
+	            System.out.println("Couldn't get filesystem info", ex);
 
 	        }
 
