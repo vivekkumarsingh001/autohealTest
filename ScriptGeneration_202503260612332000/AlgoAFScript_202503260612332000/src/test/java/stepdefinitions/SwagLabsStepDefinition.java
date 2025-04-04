@@ -10,14 +10,14 @@ package stepdefinitions;
         
 
             @When("^I clicked Username in swag labs as '(.*)'$")			
-            public void WhenIClickedUsernameInSwagLabsAsusername1(String  _username1)
+            public void WhenIClickedUsernameInSwagLabsAsusername1(String _username1)
             {
                 workFlow.enterText(_username1,0,"Swag Labs","Swag Labs.UsernameTextBoxXPATH","XPATH");
                 
             }
 
             @When("^I clicked Password in swag labs as '(.*)'$")			
-            public void WhenIClickedPasswordInSwagLabsAspassword2(String  _password2)
+            public void WhenIClickedPasswordInSwagLabsAspassword2(String _password2)
             {
                 workFlow.enterText(_password2,0,"Swag Labs","Swag Labs.PasswordTextBoxXPATH","XPATH");
                 
@@ -31,7 +31,7 @@ package stepdefinitions;
             }
 
              @Then("^'(.*)' is displayed with '(.*)'$")			
-            public void ThenpageIsDisplayedWithcontent(String  _page, String _content)
+            public void ThenpageIsDisplayedWithcontent(String _page, String _content)
             {
                 Assertion.IsTrue(workFlow.VerifyDefaultpageIsdisplayed(_page), "Then '<page>' is displayed with '<content>'");
                 Assertion.IsTrue(workFlow.VerifymessageIsDisplayed(_content), "");;
