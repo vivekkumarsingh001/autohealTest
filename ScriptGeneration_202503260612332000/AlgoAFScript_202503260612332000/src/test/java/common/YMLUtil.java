@@ -128,13 +128,13 @@ public class YMLUtil {
 		} catch (Exception ex) {
 		output = key;
 		}
-		System.out.println('output::::::::::::::::: '+ output);
-	        System.out.println('key::::::::::::::::: '+ key);
+		System.out.println("output::::::::::::::::: "+ output);
+	        System.out.println("key::::::::::::::::: "+ key);
 		AutoHealUtil.setXpath(output);
 		AutoHealUtil.setXpathKey(key);
 		try {
 			String data = HtmlElementReader.getTargetByLocator(output).replace("\'", "\"");
-			 System.out.println('data::::::::::::::::: '+ data);
+			 System.out.println("data::::::::::::::::: "+ data);
 			AutoHealUtil.setTarget(data);
 		} catch (Exception ex) {
 			log.error(ex.getMessage());
