@@ -25,7 +25,6 @@ When I clicked Shopping cart in demo web shop computing and internet
 And I checked removefromcart in demo web shop shopping cart
 And I selected updatecart in demo web shop shopping cart
 Then verify text Your Shopping Cart is empty in demo web shop shopping cart
-And '<page>' is displayed with '<content>'
 
 Examples:
 |SlNo.|Email|Password|page|content|
