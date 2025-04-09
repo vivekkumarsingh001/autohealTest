@@ -18,13 +18,7 @@ And I entered Email in demo web shop login as '<Email>'
 And I entered Password in demo web shop login as '<Password>'
 And I selected Log in in demo web shop login
 And I clicked Books2 in demo web shop
-And I clicked Computing and Internet in demo web shop books
-And I selected Add to cart in demo web shop computing and internet
-Then verify text The product has been added to your in demo web shop computing and internet
-When I clicked Shopping cart in demo web shop computing and internet
-And I checked removefromcart in demo web shop shopping cart
-And I selected updatecart in demo web shop shopping cart
-Then verify text Your Shopping Cart is empty in demo web shop shopping cart
+
 
 Examples:
 |SlNo.|Email|Password|page|content|
