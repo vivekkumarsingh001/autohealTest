@@ -25,6 +25,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.devtools.DevToolsException;
 import org.openqa.selenium.devtools.v123.network.Network;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -42,6 +44,10 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import org.openqa.selenium.Cookie;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.logging.Level;
+import org.apache.commons.io.FileUtils; 
 
 import java.nio.file.Paths;
 
@@ -203,6 +209,7 @@ public class WebBrowser {
 					prefs.put("download.default_directory", downloadFilepath);
 				}
 				ChromeOptions options = new ChromeOptions();
+
 				if (browserType.toUpperCase().equals("HEADLESS CHROME")) {
 					options.addArguments("--no-sandbox"); // Bypass OS security model
 					options.addArguments("--headless"); // headless -> no browser window. needed for jenkins
@@ -214,10 +221,22 @@ public class WebBrowser {
 					options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36");
 				}
 
-				// if (profilePath != null && !profilePath.isEmpty()) {
-				// 	// Here you set the path of the profile ending with User Data not the profile folder
-				// 	options.addArguments("user-data-dir="+profilePath);
-				// }
+				// User Data Directory handling
+				Path tempProfilePath = null;
+				try {
+					if (profilePath != null && !profilePath.isEmpty()) {
+						// Use the provided profile path
+						options.addArguments("user-data-dir=" + profilePath);
+					} else {
+						// Create a unique temp profile directory
+						tempProfilePath = Files.createTempDirectory("chrome-user-data");
+						options.addArguments("user-data-dir=" + tempProfilePath.toString());
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+					// Optionally fail fast or continue without the user-data-dir
+				}
+
 				options.addArguments("--ignore-ssl-errors=yes");
 				options.addArguments("--ignore-certificate-errors");
 				// set ExperimentalOption - prefs
@@ -227,6 +246,7 @@ public class WebBrowser {
 				options.addArguments("use-fake-device-for-media-stream");
 				options.addArguments("--remote-allow-origins=*");
 				options.addArguments("--disable-blink-features=AutomationControlled");
+
 				if (browserType.equals("Kiosk Chrome")) {
 					options.addArguments("--kiosk");
 				}
@@ -396,6 +416,7 @@ public class WebBrowser {
 				prefs.put("download.default_directory", downloadFilepath);
 			}
 			ChromeOptions options = new ChromeOptions();
+
 			if (browserType.toUpperCase().equals("HEADLESS CHROME")) {
 				options.addArguments("--no-sandbox"); // Bypass OS security model
 				options.addArguments("--headless"); // headless -> no browser window. needed for jenkins
@@ -403,20 +424,36 @@ public class WebBrowser {
 				options.addArguments("--disable-extensions"); // disabling extensions
 				options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
 				options.addArguments("window-size=1920,1080");
+				options.addArguments("--disable-gpu");
+				options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36");
 			}
 
-			// if (profilePath != null && !profilePath.isEmpty()) {
-			// 	// Here you set the path of the profile ending with User Data not the profile folder
-			// 	options.addArguments("user-data-dir="+profilePath);
-			// }
+			// User Data Directory handling
+			Path tempProfilePath = null;
+			try {
+				if (profilePath != null && !profilePath.isEmpty()) {
+					// Use the provided profile path
+					options.addArguments("user-data-dir=" + profilePath);
+				} else {
+					// Create a unique temp profile directory
+					tempProfilePath = Files.createTempDirectory("chrome-user-data");
+					options.addArguments("user-data-dir=" + tempProfilePath.toString());
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				// Optionally fail fast or continue without the user-data-dir
+			}
 
 			options.addArguments("--ignore-ssl-errors=yes");
 			options.addArguments("--ignore-certificate-errors");
-			//set ExperimentalOption - prefs
+			// set ExperimentalOption - prefs
 			options.setExperimentalOption("prefs", prefs);
+			options.setCapability("goog:loggingPrefs", java.util.Map.of(LogType.PERFORMANCE, Level.ALL));
 			options.addArguments("use-fake-ui-for-media-stream");
 			options.addArguments("use-fake-device-for-media-stream");
 			options.addArguments("--remote-allow-origins=*");
+			options.addArguments("--disable-blink-features=AutomationControlled");
+
 			if (browserType.equals("Kiosk Chrome")) {
 				options.addArguments("--kiosk");
 			}
