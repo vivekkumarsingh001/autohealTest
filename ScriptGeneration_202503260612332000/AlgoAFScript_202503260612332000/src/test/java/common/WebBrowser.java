@@ -223,19 +223,21 @@ public class WebBrowser {
 
 				// User Data Directory handling
 				Path tempProfilePath = null;
-				try {
-					if (profilePath != null && !profilePath.isEmpty()) {
-						// Use the provided profile path
-						options.addArguments("user-data-dir=" + profilePath);
-					} else {
-						// Create a unique temp profile directory
-						tempProfilePath = Files.createTempDirectory("chrome-user-data");
-						options.addArguments("user-data-dir=" + tempProfilePath.toString());
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-					// Optionally fail fast or continue without the user-data-dir
-				}
+			    try {
+			        if (profilePath != null && !profilePath.isEmpty()) {
+			            // Use the provided profile path
+			            options.addArguments("user-data-dir=" + profilePath);
+			        } else {
+			            // Create a unique temp profile directory with timestamp
+			            String timestamp = String.valueOf(System.currentTimeMillis());
+			            tempProfilePath = Files.createTempDirectory("chrome-user-data-" + timestamp);
+			            System.out.println("Created temp profile directory: " + tempProfilePath.toString());
+			            options.addArguments("user-data-dir=" + tempProfilePath.toString());
+			        }
+			    } catch (IOException e) {
+			        e.printStackTrace();
+			        throw new RuntimeException("Failed to create Chrome profile directory", e);
+			    }
 
 				options.addArguments("--ignore-ssl-errors=yes");
 				options.addArguments("--ignore-certificate-errors");
@@ -430,19 +432,21 @@ public class WebBrowser {
 
 			// User Data Directory handling
 			Path tempProfilePath = null;
-			try {
-				if (profilePath != null && !profilePath.isEmpty()) {
-					// Use the provided profile path
-					options.addArguments("user-data-dir=" + profilePath);
-				} else {
-					// Create a unique temp profile directory
-					tempProfilePath = Files.createTempDirectory("chrome-user-data");
-					options.addArguments("user-data-dir=" + tempProfilePath.toString());
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				// Optionally fail fast or continue without the user-data-dir
-			}
+		    try {
+		        if (profilePath != null && !profilePath.isEmpty()) {
+		            // Use the provided profile path
+		            options.addArguments("user-data-dir=" + profilePath);
+		        } else {
+		            // Create a unique temp profile directory with timestamp
+		            String timestamp = String.valueOf(System.currentTimeMillis());
+		            tempProfilePath = Files.createTempDirectory("chrome-user-data-" + timestamp);
+		            System.out.println("Created temp profile directory: " + tempProfilePath.toString());
+		            options.addArguments("user-data-dir=" + tempProfilePath.toString());
+		        }
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		        throw new RuntimeException("Failed to create Chrome profile directory", e);
+		    }
 
 			options.addArguments("--ignore-ssl-errors=yes");
 			options.addArguments("--ignore-certificate-errors");
