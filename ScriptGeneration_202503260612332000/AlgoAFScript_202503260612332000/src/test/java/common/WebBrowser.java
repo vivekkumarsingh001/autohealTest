@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,7 +54,9 @@ import java.nio.file.Paths;
 
 public class WebBrowser {
 	//public static WebDriver driver;
-	private static WebDriver driver;
+	private static ThreadLocal<WebDriver> threadDriver = new ThreadLocal<>();
+	private static ThreadLocal<Path> threadProfilePath = new ThreadLocal<>(); 
+	private static WebDriver driver; // Keep this for backward compatibility
 	private static String path = System.getProperty("user.dir");
 	static String parentWindowHandle;
 	private static boolean isBrowserOpen = false;
@@ -225,17 +228,15 @@ public class WebBrowser {
 				Path tempProfilePath = null;
 			    try {
 			        if (profilePath != null && !profilePath.isEmpty()) {
-			            // Use the provided profile path
 			            options.addArguments("user-data-dir=" + profilePath);
 			        } else {
-			            // Create a unique temp profile directory with timestamp
-			            String timestamp = String.valueOf(System.currentTimeMillis());
-			            tempProfilePath = Files.createTempDirectory("chrome-user-data-" + timestamp);
-			            System.out.println("Created temp profile directory: " + tempProfilePath.toString());
-			            options.addArguments("user-data-dir=" + tempProfilePath.toString());
+			            String uniqueId = UUID.randomUUID().toString();
+			            Path tempPath = Files.createTempDirectory("chrome-"+uniqueId+"-");
+			            threadProfilePath.set(tempPath);
+			            options.addArguments("user-data-dir=" + tempPath.toString());
+			            System.out.println("Created unique profile directory: " + tempPath);
 			        }
 			    } catch (IOException e) {
-			        e.printStackTrace();
 			        throw new RuntimeException("Failed to create Chrome profile directory", e);
 			    }
 
@@ -272,8 +273,10 @@ public class WebBrowser {
 					// chrome driver which will switch off this browser notification on the chrome
 					// browser
 					options.merge(caps);
-					driver = new ChromeDriver(options);
-					driver.manage().window().maximize();
+					 ChromeDriver chromeDriver = new ChromeDriver(options);
+					    threadDriver.set(chromeDriver);
+					    driver = chromeDriver; // Maintain backward compatibility
+					    chromeDriver.manage().window().maximize();
 				}
 			}
 			webdriverList.add(driver);
@@ -432,21 +435,19 @@ public class WebBrowser {
 
 			// User Data Directory handling
 			Path tempProfilePath = null;
-		    try {
-		        if (profilePath != null && !profilePath.isEmpty()) {
-		            // Use the provided profile path
-		            options.addArguments("user-data-dir=" + profilePath);
-		        } else {
-		            // Create a unique temp profile directory with timestamp
-		            String timestamp = String.valueOf(System.currentTimeMillis());
-		            tempProfilePath = Files.createTempDirectory("chrome-user-data-" + timestamp);
-		            System.out.println("Created temp profile directory: " + tempProfilePath.toString());
-		            options.addArguments("user-data-dir=" + tempProfilePath.toString());
-		        }
-		    } catch (IOException e) {
-		        e.printStackTrace();
-		        throw new RuntimeException("Failed to create Chrome profile directory", e);
-		    }
+			 try {
+			        if (profilePath != null && !profilePath.isEmpty()) {
+			            options.addArguments("user-data-dir=" + profilePath);
+			        } else {
+			            String uniqueId = UUID.randomUUID().toString();
+			            Path tempPath = Files.createTempDirectory("chrome-"+uniqueId+"-");
+			            threadProfilePath.set(tempPath);
+			            options.addArguments("user-data-dir=" + tempPath.toString());
+			            System.out.println("Created unique profile directory: " + tempPath);
+			        }
+			    } catch (IOException e) {
+			        throw new RuntimeException("Failed to create Chrome profile directory", e);
+			    }
 
 			options.addArguments("--ignore-ssl-errors=yes");
 			options.addArguments("--ignore-certificate-errors");
@@ -481,8 +482,10 @@ public class WebBrowser {
 				// chrome driver which will switch off this browser notification on the chrome
 				// browser
 				options.merge(caps);
-				driver = new ChromeDriver(options);
-				driver.manage().window().maximize();
+				 ChromeDriver chromeDriver = new ChromeDriver(options);
+				    threadDriver.set(chromeDriver);
+				    driver = chromeDriver; // Maintain backward compatibility
+				    chromeDriver.manage().window().maximize();
 			}
 		}
 		//webdriverList.add(driver);
@@ -603,15 +606,36 @@ public class WebBrowser {
 	}
 
 	public static void closeBrowserInstance() {
-		for (int counter = 0; counter < webdriverList.size(); counter++) {
-			if (webdriverList.get(counter) != null) {
-				webdriverList.get(counter).quit();
-			}
-		}
-
-		driver = null;
-		webdriverList = new ArrayList<WebDriver>();
-		isBrowserOpen = false;
+	    try {
+	        // Clean up thread-local driver
+	        if (threadDriver.get() != null) {
+	            threadDriver.get().quit();
+	            threadDriver.remove();
+	        }
+	        
+	        // Clean up profile directory
+	        if (threadProfilePath.get() != null) {
+	            try {
+	                FileUtils.deleteDirectory(threadProfilePath.get().toFile());
+	                System.out.println("Cleaned up profile directory: " + threadProfilePath.get());
+	            } catch (IOException e) {
+	                System.err.println("Failed to delete profile directory: " + e.getMessage());
+	            }
+	            threadProfilePath.remove();
+	        }
+	        
+	        // Clean up static driver and list
+	        for (int counter = 0; counter < webdriverList.size(); counter++) {
+	            if (webdriverList.get(counter) != null) {
+	                webdriverList.get(counter).quit();
+	            }
+	        }
+	        webdriverList.clear();
+	        
+	    } finally {
+	        driver = null;
+	        isBrowserOpen = false;
+	    }
 	}
 
 	public static boolean isBrowserOpened() {
