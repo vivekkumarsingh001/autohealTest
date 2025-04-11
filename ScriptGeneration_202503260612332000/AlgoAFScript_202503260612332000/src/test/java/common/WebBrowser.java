@@ -507,55 +507,89 @@ public class WebBrowser {
 	}
 
 	public static void closetab(int tab) {
-		try {
-			ArrayList<String> tabs2 = new ArrayList<String>(driver.getWindowHandles());
-			driver.switchTo().window(tabs2.get(tab));
-			driver.close();
-		} catch (Exception e) {
-
-		}
-
+	    WebDriver currentDriver = threadDriver.get(); // Get thread-local driver
+	    if (currentDriver == null) {
+	        throw new IllegalStateException("No WebDriver instance found for current thread");
+	    }
+	    
+	    try {
+	        ArrayList<String> tabs2 = new ArrayList<String>(currentDriver.getWindowHandles());
+	        currentDriver.switchTo().window(tabs2.get(tab));
+	        currentDriver.close();
+	    } catch (Exception e) {
+	        System.err.println("Failed to close tab: " + e.getMessage());
+	        // Consider rethrowing or handling specific exceptions
+	    }
 	}
 
 	public static void LaunchApplication(boolean openBrowser) {
-							
-			String autUrl = "";
-			if (CommonUtil.appUrl != null) {
-				autUrl = CommonUtil.appUrl;
-				System.out.println("appurl-----------" + autUrl);
-			} else {
-				autUrl = CommonUtil.GetXMLData(
-						Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(), "URL");
-			}
-			if(driver == null)
-			{
-				getBrowser(openBrowser);
-			}
-			
-			driver.get(autUrl);
-		
-			if(Hooks.CookiesAdded) 
-			{
-			
-			      for(Cookie cookie:Hooks.cookies)
-			  {
-			    	  driver.manage().addCookie(cookie);
-			  }
-			      driver.navigate().refresh();
-			}
-		
+	    String autUrl = "";
+	    if (CommonUtil.appUrl != null) {
+	        autUrl = CommonUtil.appUrl;
+	        System.out.println("appurl-----------" + autUrl);
+	    } else {
+	        autUrl = CommonUtil.GetXMLData(
+	            Paths.get(path.toString(), "src", "test", "java", "ApplicationSettings.xml").toString(), 
+	            "URL");
+	    }
+
+	    // Get thread-local driver (fall back to static driver for compatibility)
+	    WebDriver currentDriver = threadDriver.get() != null ? threadDriver.get() : driver;
+	    
+	    if (currentDriver == null) {
+	        currentDriver = getBrowser(openBrowser);
+	        if (threadDriver.get() == null) {
+	            threadDriver.set(currentDriver); // Set thread-local if not set
+	        }
+	    }
+
+	    try {
+	        currentDriver.get(autUrl);
+
+	        if (Hooks.CookiesAdded) {
+	            for (Cookie cookie : Hooks.cookies) {
+	                try {
+	                    currentDriver.manage().addCookie(cookie);
+	                } catch (Exception e) {
+	                    System.err.println("Failed to add cookie: " + cookie.getName() + " - " + e.getMessage());
+	                }
+	            }
+	            currentDriver.navigate().refresh();
+	        }
+	    } catch (Exception e) {
+	        System.err.println("Failed to launch application: " + e.getMessage());
+	        throw new RuntimeException("Failed to navigate to URL: " + autUrl, e);
+	    }
 	}
 
 	public static void LaunchApplication(boolean openBrowser, String autUrl) {
-
-		getBrowser(openBrowser);
-		((JavascriptExecutor) driver).executeScript("window.open()");
-		ArrayList<String> tabs = new ArrayList<String>(driver.getWindowHandles());
-		for (int i = 0; i < tabs.size(); i++) {
-			driver.switchTo().window(tabs.get(i));
-		}
-		WebDriver newDriver = webdriverList.get(webdriverList.size() - 1);
-		newDriver.get(autUrl);
+	    // Get or create the browser instance
+	    WebDriver currentDriver = getBrowser(openBrowser);
+	    
+	    // Store the original window handle
+	    String originalWindow = currentDriver.getWindowHandle();
+	    
+	    try {
+	        // Open new tab using thread-safe driver reference
+	        ((JavascriptExecutor) currentDriver).executeScript("window.open()");
+	        
+	        // Get all window handles
+	        ArrayList<String> tabs = new ArrayList<>(currentDriver.getWindowHandles());
+	        
+	        // Switch to the new tab (last in the list)
+	        String newTab = tabs.get(tabs.size() - 1);
+	        currentDriver.switchTo().window(newTab);
+	        
+	        // Navigate to URL
+	        currentDriver.get(autUrl);
+	        
+	        // Return to original tab if needed
+	        currentDriver.switchTo().window(originalWindow);
+	        
+	    } catch (Exception e) {
+	        System.err.println("Error in LaunchApplication: " + e.getMessage());
+	        throw new RuntimeException("Failed to launch application in new tab: " + autUrl, e);
+	    }
 	}
 
 	public static void LaunchNewInstance(boolean openBrowser, String autUrl) {
@@ -569,14 +603,35 @@ public class WebBrowser {
 		driver.navigate().to(autUrl);
 	}
 
-	public static void openNewTab(boolean openBrowser, String autUrl) {		
-		((JavascriptExecutor) driver).executeScript("window.open()");
-		ArrayList<String> tabs = new ArrayList<String>(driver.getWindowHandles());
-		for (int i = 0; i < tabs.size(); i++) {
-			driver.switchTo().window(tabs.get(i));
-		}
-		WebDriver newDriver = webdriverList.get(webdriverList.size() - 1);
-		newDriver.get(autUrl);
+	public static void openNewTab(boolean openBrowser, String autUrl) {
+	    // Get the thread-local driver (fall back to static driver for compatibility)
+	    WebDriver currentDriver = threadDriver.get() != null ? threadDriver.get() : driver;
+	    
+	    if (currentDriver == null) {
+	        currentDriver = getBrowser(openBrowser);
+	        threadDriver.set(currentDriver);
+	    }
+
+	    try {
+	        // Open new tab
+	        ((JavascriptExecutor) currentDriver).executeScript("window.open()");
+	        
+	        // Switch to new tab
+	        ArrayList<String> tabs = new ArrayList<>(currentDriver.getWindowHandles());
+	        currentDriver.switchTo().window(tabs.get(tabs.size() - 1));
+	        
+	        // Navigate to URL
+	        currentDriver.get(autUrl);
+	        
+	        // Add to webdriverList if needed (thread-safe modification)
+	        synchronized (webdriverList) {
+	            webdriverList.add(currentDriver);
+	        }
+	        
+	    } catch (Exception e) {
+	        System.err.println("Failed to open new tab: " + e.getMessage());
+	        throw new RuntimeException("Failed to open new tab with URL: " + autUrl, e);
+	    }
 	}
 
 	public static void LaunchAPIApplication() {
