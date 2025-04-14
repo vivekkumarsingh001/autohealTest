@@ -214,10 +214,10 @@ public class WebBrowser {
 					options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36");
 				}
 
-				if (profilePath != null && !profilePath.isEmpty()) {
-    // Append a unique identifier (timestamp or random number) to the profile path
-    String uniqueProfilePath = profilePath + "_" + System.currentTimeMillis();
-    options.addArguments("user-data-dir=" + uniqueProfilePath);
+// Add a condition to check if running in CI
+boolean isCI = System.getenv("JENKINS_HOME") != null;
+if (!isCI && profilePath != null && !profilePath.isEmpty()) {
+    options.addArguments("user-data-dir="+profilePath);
 }
 				options.addArguments("--ignore-ssl-errors=yes");
 				options.addArguments("--ignore-certificate-errors");
@@ -406,10 +406,10 @@ public class WebBrowser {
 				options.addArguments("window-size=1920,1080");
 			}
 
-if (profilePath != null && !profilePath.isEmpty()) {
-    // Append a unique identifier (timestamp or random number) to the profile path
-    String uniqueProfilePath = profilePath + "_" + System.currentTimeMillis();
-    options.addArguments("user-data-dir=" + uniqueProfilePath);
+// Add a condition to check if running in CI
+boolean isCI = System.getenv("JENKINS_HOME") != null;
+if (!isCI && profilePath != null && !profilePath.isEmpty()) {
+    options.addArguments("user-data-dir="+profilePath);
 }
 
 			options.addArguments("--ignore-ssl-errors=yes");
