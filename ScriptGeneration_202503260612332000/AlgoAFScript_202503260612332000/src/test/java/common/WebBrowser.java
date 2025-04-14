@@ -215,9 +215,10 @@ public class WebBrowser {
 				}
 
 				if (profilePath != null && !profilePath.isEmpty()) {
-					// Here you set the path of the profile ending with User Data not the profile folder
-					options.addArguments("user-data-dir="+profilePath);
-				}
+    // Append a unique identifier (timestamp or random number) to the profile path
+    String uniqueProfilePath = profilePath + "_" + System.currentTimeMillis();
+    options.addArguments("user-data-dir=" + uniqueProfilePath);
+}
 				options.addArguments("--ignore-ssl-errors=yes");
 				options.addArguments("--ignore-certificate-errors");
 				// set ExperimentalOption - prefs
@@ -405,10 +406,11 @@ public class WebBrowser {
 				options.addArguments("window-size=1920,1080");
 			}
 
-			if (profilePath != null && !profilePath.isEmpty()) {
-				// Here you set the path of the profile ending with User Data not the profile folder
-				options.addArguments("user-data-dir="+profilePath);
-			}
+if (profilePath != null && !profilePath.isEmpty()) {
+    // Append a unique identifier (timestamp or random number) to the profile path
+    String uniqueProfilePath = profilePath + "_" + System.currentTimeMillis();
+    options.addArguments("user-data-dir=" + uniqueProfilePath);
+}
 
 			options.addArguments("--ignore-ssl-errors=yes");
 			options.addArguments("--ignore-certificate-errors");
