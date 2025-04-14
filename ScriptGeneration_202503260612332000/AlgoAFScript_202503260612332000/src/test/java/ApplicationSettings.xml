@@ -31,7 +31,7 @@
     <NetworkLog>False</NetworkLog>
     <Token>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIxMzksInByb2plY3RJZCI6MjgxNzQsInVzZXJOYW1lIjoiVmlkaXNoYSBCaGF0IiwiYmFzZVVybCI6Imh0dHBzOi8vYWxnb3NoYWNrLm5ldCIsImlhdCI6MTc0Mzc0MTI4OX0.2jxHDq2-AASHoV3dkBqtJBNB5GjQ6M7JSZJ27icS280</Token>
     <UserName>Vidisha Bhat</UserName>
-    <AutoHealing>False</AutoHealing>
+    <AutoHealing>True</AutoHealing>
     <EnablePercy>yes</EnablePercy>
     <JiraIntegration>False</JiraIntegration>
     <JiraIntegrationParameters>JiraUrl,Username,Password,ProjectKey,IssueType,ReporterName</JiraIntegrationParameters>
