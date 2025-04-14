@@ -136,6 +136,7 @@ public class AutoHealUtil {
 			StreamResult result = new StreamResult(new File(xmlFile));
 			transformer.transform(source, result);
 			log.info("XML File saved!");
+			
 
 			saveHtmlPageSource(htmlFile);
 
@@ -171,6 +172,7 @@ public class AutoHealUtil {
 	        WebDriver driver = WebBrowser.getBrowser();
 	        out.write(driver.getPageSource());
 	        log.info("HTML data saved in UTF-8 format!");
+		    System.out.println(driver.getPageSource());
 
 	    } catch (IOException e) {
 	        log.error("Error saving HTML file: " + e.getMessage());
