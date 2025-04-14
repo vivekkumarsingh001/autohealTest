@@ -214,11 +214,10 @@ public class WebBrowser {
 					options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36");
 				}
 
-// Add a condition to check if running in CI
-boolean isCI = System.getenv("JENKINS_HOME") != null;
-if (!isCI && profilePath != null && !profilePath.isEmpty()) {
-    options.addArguments("user-data-dir="+profilePath);
-}
+				// if (profilePath != null && !profilePath.isEmpty()) {
+				// 	// Here you set the path of the profile ending with User Data not the profile folder
+				// 	options.addArguments("user-data-dir="+profilePath);
+				// }
 				options.addArguments("--ignore-ssl-errors=yes");
 				options.addArguments("--ignore-certificate-errors");
 				// set ExperimentalOption - prefs
@@ -406,11 +405,10 @@ if (!isCI && profilePath != null && !profilePath.isEmpty()) {
 				options.addArguments("window-size=1920,1080");
 			}
 
-// Add a condition to check if running in CI
-boolean isCI = System.getenv("JENKINS_HOME") != null;
-if (!isCI && profilePath != null && !profilePath.isEmpty()) {
-    options.addArguments("user-data-dir="+profilePath);
-}
+			// if (profilePath != null && !profilePath.isEmpty()) {
+			// 	// Here you set the path of the profile ending with User Data not the profile folder
+			// 	options.addArguments("user-data-dir="+profilePath);
+			// }
 
 			options.addArguments("--ignore-ssl-errors=yes");
 			options.addArguments("--ignore-certificate-errors");
