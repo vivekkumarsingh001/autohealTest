@@ -172,7 +172,7 @@ public class AutoHealUtil {
 	        WebDriver driver = WebBrowser.getBrowser();
 	        out.write(driver.getPageSource());
 	        log.info("HTML data saved in UTF-8 format!");
-		    System.out.println(driver.getPageSource());
+
 
 	    } catch (IOException e) {
 	        log.error("Error saving HTML file: " + e.getMessage());
