@@ -110,7 +110,8 @@ public class AutoHealUtil {
 			Element projectPath = doc.createElement("ObjectRepositoryFile");
 			projectPath.appendChild(doc.createTextNode(objectRepositoryPath));
 			rootElement.appendChild(projectPath);
-
+System.out.println("xpath:::::" +xpath);
+System.out.println("XPathKey:::::" +xpathKey);
 			Element xPathKey = doc.createElement("XPathKey");
 			xPathKey.appendChild(doc.createTextNode(xpathKey));
 			rootElement.appendChild(xPathKey);

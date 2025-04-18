@@ -1,21 +1,21 @@
-Home Page:
-   loginPagepagetitle: "login"
 Demo Web Shop:
-   LoginLinkXPATH: "//a[contains(.,'Log in')]"
-   Books2LinkXPATH: "(//a[contains(.,'Books')])[1]"
-Demo Web Shop Login:
-   EmailTextBoxXPATH: "//input[@id='Email']"
-   PasswordTextBoxXPATH: "//input[@id='Pasword']"
-   LoginButtonXPATH: "//input[@class='button-1 login-button']"
+  Books2LinkXPATH: (//a[contains(.,'Books')])[1]
+  LoginLinkXPATH: //a[contains(.,'Log in')]
 Demo Web Shop Books:
-   ComputingandInternetLinkXPATH: "(//a[contains(.,'Computing and Internet')])[1]"
+  ComputingandInternetLinkXPATH: (//a[contains(.,'Computing and Internet')])[1]
 Demo Web Shop Computing and Internet:
-   AddtocartButtonXPATH: "//input[@id='add-to-cart-button-13']"
-   TheproducthasbeenaddedtoyourLabelXPATH: "//p[contains(.,'The product has been added to your shopping cart')]"
-   ShoppingcartLinkXPATH: "//span[contains(.,'Shopping cart')]"
+  AddtocartButtonXPATH: //input[@id='add-to-cart-button-13']
+  ShoppingcartLinkXPATH: //span[contains(.,'Shopping cart')]
+  TheproducthasbeenaddedtoyourLabelXPATH: //p[contains(.,'The product has been added to your shopping cart')]
+Demo Web Shop Login:
+  EmailTextBoxXPATH: //input[@id='Email']
+  LoginButtonXPATH: //input[@class='button-1 login-button']
+  PasswordTextBoxXPATH: //input[@id='Password']
 Demo Web Shop Shopping Cart:
-   removefromcartCheckBoxXPATH: "//input[@name='removefromcart']"
-   updatecartButtonXPATH: "//input[@name='updatecart']"
-   YourShoppingCartisemptyLabelXPATH: "(//div[contains(.,'Your Shopping Cart is empty!')])[7]"
-   DefaultpagepageTitle: ""
-   messageLabeltext: ""
+  DefaultpagepageTitle: ''
+  YourShoppingCartisemptyLabelXPATH: (//div[contains(.,'Your Shopping Cart is empty!')])[7]
+  messageLabeltext: ''
+  removefromcartCheckBoxXPATH: //input[@name='removefromcart']
+  updatecartButtonXPATH: //input[@name='updatecart']
+Home Page:
+  loginPagepagetitle: login
