@@ -1,50 +1,50 @@
 [
-  {
-    "locator": "//a[contains(.,'Log in')]",
-    "target": "<a href='/login' class='ico-login'>Log in</a>"
-  },
-  {
-    "locator": "(//a[contains(.,'Books')])[1]",
-    "target": "<a href='/books'>Books\n        </a>"
-  },
-  {
-    "locator": "//input[@id='Email']",
-    "target": "<input autofocus='autofocus' class='email' id='Email' name='Email' type='text' value=''>"
-  },
-  {
-    "locator": "//input[@class='button-1 login-button']",
-    "target": "<input class='button-1 login-button' type='submit' value='Log in'>"
-  },
-  {
-    "locator": "(//a[contains(.,'Computing and Internet')])[1]",
-    "target": "<a href='/computing-and-internet'>Computing and Internet</a>"
-  },
-  {
-    "locator": "//input[@id='add-to-cart-button-13']",
-    "target": "<input type='button' id='add-to-cart-button-13' class='button-1 add-to-cart-button' value='Add to cart' data-productid='13' onclick='AjaxCart.addproducttocart_details('/addproducttocart/details/13/1', '#product-details-form');return false;'>"
-  },
-  {
-    "locator": "//p[contains(.,'The product has been added to your shopping cart')]",
-    "target": "<p class='content'>The product has been added to your<a href='/cart'>shopping cart</a></p>"
-  },
-  {
-    "locator": "//span[contains(.,'Shopping cart')]",
-    "target": "<span class='cart-label'>Shopping cart</span>"
-  },
-  {
-    "locator": "//input[@name='removefromcart']",
-    "target": "<input type='checkbox' name='removefromcart' value='5241660'>"
-  },
-  {
-    "locator": "//input[@name='updatecart']",
-    "target": "<input type='submit' name='updatecart' value='Update shopping cart' class='button-2 update-cart-button'>"
-  },
-  {
-    "locator": "(//div[contains(.,'Your Shopping Cart is empty!')])[7]",
-    "target": "<div class='order-summary-content'>Your Shopping Cart is empty!</div>"
-  },
-  {
-    "locator": "//input[@id='Password']",
-    "target": "<input class='password' id='Password' name='Password' type='password'>"
-  }
+    {
+        "locator": "//a[contains(.,'Log in')]",
+        "target": "<a href='/login' class='ico-login'>Log in</a>"
+    },
+    {
+        "locator": "(//a[contains(.,'Books')])[1]",
+        "target": "<a href='/books'>Books\n        </a>"
+    },
+    {
+        "locator": "//input[@id='Email']",
+        "target": "<input autofocus='autofocus' class='email' id='Email' name='Email' type='text' value=''>"
+    },
+    {
+        "locator": "//input[@class='button-1 login-button']",
+        "target": "<input class='button-1 login-button' type='submit' value='Log in'>"
+    },
+    {
+        "locator": "(//a[contains(.,'Computing and Internet')])[1]",
+        "target": "<a href='/computing-and-internet'>Computing and Internet</a>"
+    },
+    {
+        "locator": "//input[@id='add-to-cart-button-13']",
+        "target": "<input type='button' id='add-to-cart-button-13' class='button-1 add-to-cart-button' value='Add to cart' data-productid='13' onclick='AjaxCart.addproducttocart_details('/addproducttocart/details/13/1', '#product-details-form');return false;'>"
+    },
+    {
+        "locator": "//p[contains(.,'The product has been added to your shopping cart')]",
+        "target": "<p class='content'>The product has been added to your<a href='/cart'>shopping cart</a></p>"
+    },
+    {
+        "locator": "//span[contains(.,'Shopping cart')]",
+        "target": "<span class='cart-label'>Shopping cart</span>"
+    },
+    {
+        "locator": "//input[@name='removefromcart']",
+        "target": "<input type='checkbox' name='removefromcart' value='5241660'>"
+    },
+    {
+        "locator": "//input[@name='updatecart']",
+        "target": "<input type='submit' name='updatecart' value='Update shopping cart' class='button-2 update-cart-button'>"
+    },
+    {
+        "locator": "(//div[contains(.,'Your Shopping Cart is empty!')])[7]",
+        "target": "<div class='order-summary-content'>Your Shopping Cart is empty!</div>"
+    },
+    {
+        "locator": "//input[@id='Password']",
+        "target": "<input class='password' id='Password' name='Password' type='password'/>"
+    }
 ]
