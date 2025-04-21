@@ -44,6 +44,10 @@
     "target": "<div class='order-summary-content'>Your Shopping Cart is empty!</div>"
   },
   {
+    "locator": "//input[@id='Pasword']",
+    "target": "<input class='password' id='Password' name='Password' type='password'>"
+  },
+  {
     "locator": "//input[@id='Password']",
     "target": "<input class='password' id='Password' name='Password' type='password'>"
   }
