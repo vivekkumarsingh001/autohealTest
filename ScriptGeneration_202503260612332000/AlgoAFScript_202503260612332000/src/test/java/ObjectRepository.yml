@@ -5,7 +5,7 @@ Demo Web Shop:
    Books2LinkXPATH: "(//a[contains(.,'Books')])[1]"
 Demo Web Shop Login:
    EmailTextBoxXPATH: "//input[@id='Email']"
-   PasswordTextBoxXPATH: "//input[@id='Password']"
+   PasswordTextBoxXPATH: "//input[@id='Pasword']"
    LoginButtonXPATH: "//input[@class='button-1 login-button']"
 Demo Web Shop Books:
    ComputingandInternetLinkXPATH: "(//a[contains(.,'Computing and Internet')])[1]"
