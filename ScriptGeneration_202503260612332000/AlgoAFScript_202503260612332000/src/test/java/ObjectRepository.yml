@@ -19,5 +19,3 @@ Demo Web Shop Shopping Cart:
   updatecartButtonXPATH: //input[@name='updatecart']
 Home Page:
   loginPagepagetitle: login
-
-# Updated: 2025-04-21T14:16:02.654744600Z
