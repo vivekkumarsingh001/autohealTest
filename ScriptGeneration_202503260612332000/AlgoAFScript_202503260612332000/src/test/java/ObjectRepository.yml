@@ -10,7 +10,7 @@ Demo Web Shop Computing and Internet:
 Demo Web Shop Login:
   EmailTextBoxXPATH: //input[@id='Email']
   LoginButtonXPATH: //input[@class='button-1 login-button']
-  PasswordTextBoxXPATH: //input[@id='Password']
+  PasswordTextBoxXPATH: //input[@id='Pasword']
 Demo Web Shop Shopping Cart:
   DefaultpagepageTitle: ''
   YourShoppingCartisemptyLabelXPATH: (//div[contains(.,'Your Shopping Cart is empty!')])[7]
