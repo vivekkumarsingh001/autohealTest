@@ -42,5 +42,5 @@
     <HubURL>http://192.168.29.57:4444/wd/hub</HubURL>
     <Type>Selenium</Type>
     <DownloadPath/>
-    <RetryFailedTestCaseCount>0</RetryFailedTestCaseCount>
+    <RetryFailedTestCaseCount>1</RetryFailedTestCaseCount>
 </ApplicationSettings>
