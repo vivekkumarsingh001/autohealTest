@@ -1,0 +1,12 @@
+{
+  "github": {
+    "base": "https://api.github.com/repos/",
+    "target_branch": "vivek",
+    "current_branch": "main",
+    "repo": "vivekkumarsingh001/autohealTest",
+    "cicdFlag": true,
+	"push_to_current_branch": false
+	"create_PR_to_target_branch": false
+	
+  }
+}
