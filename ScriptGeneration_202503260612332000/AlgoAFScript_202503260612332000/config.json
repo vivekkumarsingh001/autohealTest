@@ -5,8 +5,8 @@
     "current_branch": "main",
     "repo": "vivekkumarsingh001/autohealTest",
     "cicdFlag": true,
-	"push_to_current_branch": false
-	"create_PR_to_target_branch": false
+	"push_to_current_branch": true
+	"create_PR_to_target_branch": true
 	
   }
 }
